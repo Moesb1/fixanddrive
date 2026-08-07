@@ -1,0 +1,899 @@
+/* ==========================================================================
+   FIX & DRIVE — mobile-first garage manager
+   Designed for one-handed phone use: 16px+ text everywhere, 56px tap targets,
+   nothing depends on hover, primary actions sit low on the screen.
+   ========================================================================== */
+
+:root{
+  --red:#c1272d; --red-h:#a01e23; --red-s:#fff0f0; --red-b:#fecaca;
+  --ink:#0f172a; --ink2:#1e293b; --ink3:#334155;
+  --sub:#475569; --mute:#64748b;
+  --bg:#f1f5f9; --card:#fff;
+  --brd:#dbe2ea; --brd2:#b9c4d1;
+  --grn:#047857; --grn-s:#ecfdf5; --grn-b:#6ee7b7;
+  --amb:#b45309; --amb-s:#fffbeb; --amb-b:#fcd34d;
+  --blu:#1d4ed8; --blu-s:#eff6ff; --blu-b:#bfdbfe;
+  --wa:#25d366;
+
+  --r8:8px; --r12:12px; --r16:16px; --r20:20px;
+  --sh:0 2px 8px rgba(15,23,42,.07);
+  --sh-lg:0 12px 34px rgba(15,23,42,.18);
+
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+
+  /* Touch sizing — the whole design keys off these. */
+  --tap:56px;
+  --nav-h:68px;
+
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+html{
+  -webkit-text-size-adjust:100%;
+  overflow-x:hidden;
+}
+
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--ink);
+  font-size:16px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  /* Kill the grey flash on tap — we use explicit :active states instead. */
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* Stop iOS from zooming the viewport when a field is focused: any input
+   below 16px triggers it, so 16px is a hard floor on every control. */
+input,select,textarea,button{font-family:inherit;font-size:16px}
+
+/* ==========================================================================
+   APP BAR
+   ========================================================================== */
+
+.appbar{
+  position:sticky; top:0; z-index:60;
+  background:linear-gradient(135deg,#080d1a 0%,#111c2e 55%,#0c1525 100%);
+  padding-top:var(--safe-t);
+  box-shadow:0 2px 14px rgba(0,0,0,.24);
+}
+
+.appbar-top{
+  display:flex; align-items:center; gap:12px;
+  padding:12px 16px 10px;
+}
+
+.logo-badge{
+  width:42px; height:42px; flex-shrink:0;
+  background:var(--red); border-radius:11px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 3px 12px rgba(193,39,45,.5);
+}
+
+.logo-text{flex:1; min-width:0}
+.logo-name{
+  font-size:16px; font-weight:800; color:#fff;
+  letter-spacing:.9px; line-height:1.1; white-space:nowrap;
+}
+.logo-tag{
+  font-size:8.5px; font-weight:600; letter-spacing:3px;
+  color:rgba(255,255,255,.34); text-transform:uppercase; margin-top:3px;
+}
+
+/* Currency picker lives in the bar so it is always one tap away. */
+.curr-box{flex-shrink:0; text-align:right}
+.curr-sel{
+  background:rgba(255,255,255,.1);
+  border:1.5px solid rgba(255,255,255,.16);
+  color:#fff; border-radius:var(--r8);
+  padding:10px 12px; font-weight:700; font-size:15px;
+  -webkit-appearance:none; appearance:none; outline:none;
+  min-height:44px;
+}
+.curr-sel option{background:#1e293b; color:#fff}
+.curr-rate{
+  font-size:9.5px; color:rgba(255,255,255,.36);
+  margin-top:3px; white-space:nowrap;
+}
+
+/* Horizontally scrollable KPI strip — no cramming 5 numbers into 360px. */
+.stat-strip{
+  display:flex; gap:10px;
+  padding:0 16px 12px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.stat-strip::-webkit-scrollbar{display:none}
+.stat-pill{
+  flex:0 0 auto; min-width:82px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--r12);
+  padding:8px 13px;
+}
+.stat-pill .v{font-size:18px; font-weight:800; color:#fff; line-height:1.15}
+.stat-pill .l{
+  font-size:8.5px; font-weight:600; letter-spacing:1.6px;
+  color:rgba(255,255,255,.4); text-transform:uppercase; margin-top:2px;
+}
+
+/* ==========================================================================
+   PANES
+   ========================================================================== */
+
+.pane{
+  display:none;
+  padding:16px 14px calc(var(--nav-h) + var(--safe-b) + 28px);
+}
+.pane.on{display:block}
+/* extra room so the fixed total bar never covers the last button */
+#pane-new{padding-bottom:calc(var(--nav-h) + var(--safe-b) + 96px)}
+
+.pane-title{
+  font-size:22px; font-weight:800; letter-spacing:-.4px;
+  margin-bottom:14px; color:var(--ink);
+}
+
+.card{
+  background:var(--card);
+  border-radius:var(--r16);
+  border:1px solid var(--brd);
+  box-shadow:var(--sh);
+  padding:16px;
+  margin-bottom:14px;
+}
+
+.sect-head{
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:14px;
+}
+.sect-ico{
+  width:34px; height:34px; flex-shrink:0;
+  background:var(--red-s); border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+}
+.sect-title{
+  font-size:12px; font-weight:800; color:var(--sub);
+  text-transform:uppercase; letter-spacing:1.5px;
+}
+
+/* ==========================================================================
+   FORM CONTROLS — everything is full width and finger sized
+   ========================================================================== */
+
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+
+.field label{
+  display:block; font-size:13px; font-weight:700;
+  color:var(--sub); margin-bottom:7px;
+  text-transform:uppercase; letter-spacing:.7px;
+}
+
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+  min-height:var(--tap);
+  border:2px solid var(--brd);
+  border-radius:var(--r12);
+  padding:14px 15px;
+  font-size:17px; font-weight:600;
+  color:var(--ink); background:#fafbfc;
+  outline:none;
+  transition:border-color .14s, background .14s;
+}
+.field textarea{min-height:88px; resize:vertical; font-weight:500; line-height:1.5}
+.field select{
+  -webkit-appearance:none; appearance:none;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%2364748b' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 16px center;
+  padding-right:44px;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+  border-color:var(--red); background:#fff;
+  box-shadow:0 0 0 4px rgba(193,39,45,.12);
+}
+.field input::placeholder,.field textarea::placeholder{color:#94a3b8; font-weight:400}
+
+/* Date fields carry a native picker glyph on top of a 10-character value,
+   so they get tighter padding to survive two-up on a 360px screen. */
+input[type="date"]{
+  min-height:var(--tap);
+  -webkit-appearance:none; appearance:none;
+  padding-left:11px; padding-right:8px;
+  font-size:16px;
+}
+
+.field-row{display:flex; gap:10px}
+.field-row > .field{flex:1; min-width:0}
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:9px;
+  min-height:var(--tap);
+  padding:14px 20px;
+  border:none; border-radius:var(--r12);
+  font-size:17px; font-weight:700;
+  cursor:pointer; text-decoration:none;
+  transition:transform .1s, filter .1s;
+  user-select:none; -webkit-user-select:none;
+  line-height:1.2;
+}
+.btn:active{transform:scale(.97); filter:brightness(.93)}
+
+.btn-block{width:100%}
+.btn-red{background:var(--red); color:#fff; box-shadow:0 3px 12px rgba(193,39,45,.32)}
+.btn-dark{background:var(--ink2); color:#fff}
+.btn-wa{background:var(--wa); color:#fff; box-shadow:0 3px 12px rgba(37,211,102,.3)}
+.btn-ghost{background:#fff; color:var(--sub); border:2px solid var(--brd2)}
+.btn-danger-ghost{background:#fff; color:var(--red); border:2px solid var(--red-b)}
+
+/* Compact variant for inside list cards — still 44px, the iOS minimum. */
+.btn-sm{min-height:44px; padding:10px 14px; font-size:15px; border-radius:10px; gap:6px}
+.btn-icon{min-height:44px; min-width:44px; padding:10px; font-size:17px}
+
+.btn-stack{display:flex; flex-direction:column; gap:10px}
+.btn-pair{display:flex; gap:10px}
+.btn-pair > .btn{flex:1}
+
+/* ==========================================================================
+   LINE ITEMS — cards, not a table. A 6-column table is unusable at 360px.
+   ========================================================================== */
+
+.item-card{
+  border:2px solid var(--brd);
+  border-radius:var(--r12);
+  padding:12px;
+  margin-bottom:10px;
+  background:#fafbfc;
+}
+.item-top{
+  display:flex; align-items:center; gap:10px; margin-bottom:10px;
+}
+.item-num{
+  width:30px; height:30px; flex-shrink:0;
+  background:var(--ink2); color:#fff;
+  border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; font-weight:800;
+}
+.item-desc{
+  flex:1; min-width:0;
+  min-height:48px;
+  border:2px solid var(--brd); border-radius:10px;
+  padding:12px 13px; font-size:16px; font-weight:600;
+  background:#fff; outline:none; color:var(--ink);
+}
+.item-desc:focus{border-color:var(--red); box-shadow:0 0 0 3px rgba(193,39,45,.1)}
+.item-desc::placeholder{color:#94a3b8; font-weight:400}
+
+.item-del{
+  width:44px; height:44px; flex-shrink:0;
+  border:none; background:transparent;
+  color:var(--mute); font-size:20px;
+  border-radius:10px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.item-del:active{background:var(--red-s); color:var(--red)}
+
+.item-grid{
+  display:grid;
+  grid-template-columns:1.15fr 1fr 1fr;
+  gap:8px;
+}
+
+/* Line total: a readout, so it costs one short row instead of a whole field. */
+.item-amount{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:11px; padding-top:10px;
+  border-top:1.5px dashed var(--brd);
+}
+.item-amount .l{
+  font-size:11px; font-weight:800; color:var(--mute);
+  text-transform:uppercase; letter-spacing:1.1px;
+}
+.item-amount .v{font-size:19px; font-weight:800; color:var(--ink)}
+.item-amount .v.zero{color:#b6c2cf; font-weight:600}
+.item-cell label{
+  display:block; font-size:10.5px; font-weight:800;
+  color:var(--mute); text-transform:uppercase;
+  letter-spacing:1px; margin-bottom:5px; text-align:center;
+}
+.item-cell input{
+  width:100%; min-height:48px;
+  border:2px solid var(--brd); border-radius:10px;
+  padding:11px 8px; font-size:16px; font-weight:700;
+  text-align:center; background:#fff; outline:none; color:var(--ink);
+}
+.item-cell input:focus{border-color:var(--red); box-shadow:0 0 0 3px rgba(193,39,45,.1)}
+.item-cell input[readonly]{
+  background:var(--bg); color:var(--ink2);
+  border-color:var(--bg); font-weight:800;
+}
+
+/* Parts / Labour is a two-state toggle, big enough to hit without looking. */
+.type-toggle{
+  width:100%; min-height:48px;
+  border:2px solid var(--brd2); border-radius:10px;
+  background:#fff; color:var(--mute);
+  font-size:14px; font-weight:800; letter-spacing:.4px;
+  cursor:pointer; text-transform:uppercase;
+}
+.type-toggle:active{transform:scale(.96)}
+.type-toggle.labour{
+  background:var(--amb-s); color:var(--amb); border-color:var(--amb-b);
+}
+
+.add-item{
+  width:100%; min-height:var(--tap);
+  display:flex; align-items:center; justify-content:center; gap:9px;
+  border:2.5px dashed var(--brd2); border-radius:var(--r12);
+  background:transparent; color:var(--sub);
+  font-size:16px; font-weight:700; cursor:pointer;
+}
+.add-item:active{border-color:var(--red); color:var(--red); background:var(--red-s)}
+
+/* ==========================================================================
+   TOTALS
+   ========================================================================== */
+
+.totals{border:2px solid var(--brd); border-radius:var(--r12); overflow:hidden}
+.totals-body{padding:6px 14px}
+.trow{
+  display:flex; justify-content:space-between; align-items:center;
+  gap:12px; padding:11px 0;
+  border-bottom:1px solid var(--bg);
+  font-size:16px;
+}
+.trow:last-child{border-bottom:none}
+.trow-l{font-weight:600; color:var(--sub)}
+.trow-v{font-weight:800; color:var(--ink)}
+.trow.labour .trow-l,.trow.labour .trow-v{color:var(--amb); font-size:14.5px}
+.trow input{
+  width:120px; min-height:48px;
+  border:2px solid var(--brd); border-radius:10px;
+  padding:11px 12px; font-size:16px; font-weight:700;
+  text-align:right; background:#fafbfc; outline:none; color:var(--ink);
+}
+.trow input:focus{border-color:var(--red); background:#fff}
+
+.grand{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:16px 16px; background:var(--ink2); gap:10px;
+}
+.grand-l{
+  font-size:11px; font-weight:800; letter-spacing:2px;
+  color:rgba(255,255,255,.5); text-transform:uppercase;
+}
+.grand-v{font-size:26px; font-weight:800; color:#fff; letter-spacing:-.6px}
+
+/* Running total pinned above the nav, so the number and Save are always
+   reachable no matter how far down the form the mechanic has scrolled.
+   It is fixed rather than sticky because `overflow-x:hidden` on <html>
+   (needed to stop sideways drift) turns the root into a scroll container
+   and stops position:sticky resolving against the viewport.
+   It hides automatically on the other tabs: its pane is display:none. */
+.sticky-total{
+  position:fixed;
+  left:0; right:0;
+  bottom:calc(var(--nav-h) + var(--safe-b));
+  z-index:50;
+  padding:11px 16px;
+  background:var(--ink2);
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px;
+  box-shadow:0 -6px 20px rgba(15,23,42,.22);
+}
+.sticky-total .l{
+  font-size:10px; font-weight:800; letter-spacing:1.8px;
+  color:rgba(255,255,255,.5); text-transform:uppercase;
+}
+.sticky-total .v{font-size:22px; font-weight:800; color:#fff; line-height:1.1}
+
+/* ==========================================================================
+   STAT GRID (inside panes)
+   ========================================================================== */
+
+.stat-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  margin-bottom:14px;
+}
+.stat-grid.four{grid-template-columns:1fr 1fr}
+.stat-box{
+  background:var(--card); border:1.5px solid var(--brd);
+  border-radius:var(--r12); padding:14px 12px; text-align:center;
+}
+.stat-box.amber{background:var(--amb-s); border-color:var(--amb-b)}
+.stat-box.green{background:var(--grn-s); border-color:var(--grn-b)}
+.stat-box.blue {background:var(--blu-s); border-color:var(--blu-b)}
+.stat-box .n{font-size:26px; font-weight:800; color:var(--red); line-height:1.1; letter-spacing:-.5px}
+.stat-box.amber .n{color:var(--amb)}
+.stat-box.green .n{color:var(--grn)}
+.stat-box.blue  .n{color:var(--blu)}
+.stat-box .l{
+  font-size:10.5px; font-weight:700; color:var(--mute);
+  text-transform:uppercase; letter-spacing:1.2px; margin-top:5px;
+}
+
+/* ==========================================================================
+   SEARCH + FILTER PILLS
+   ========================================================================== */
+
+.search-wrap{position:relative; margin-bottom:12px}
+.search-wrap input{
+  width:100%; min-height:var(--tap);
+  border:2px solid var(--brd); border-radius:var(--r12);
+  padding:14px 46px 14px 46px;
+  font-size:16px; font-weight:600;
+  background:#fff; outline:none; color:var(--ink);
+}
+.search-wrap input:focus{border-color:var(--red); box-shadow:0 0 0 4px rgba(193,39,45,.1)}
+.search-ico{
+  position:absolute; left:15px; top:50%; transform:translateY(-50%);
+  pointer-events:none; color:var(--mute);
+}
+.search-clear{
+  position:absolute; right:6px; top:50%; transform:translateY(-50%);
+  width:44px; height:44px; border:none; background:transparent;
+  color:var(--mute); font-size:19px; cursor:pointer; border-radius:10px;
+  display:none; align-items:center; justify-content:center;
+}
+.search-clear.show{display:flex}
+
+.pill-row{
+  display:flex; gap:8px; overflow-x:auto;
+  padding-bottom:10px; margin-bottom:8px;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch;
+}
+.pill-row::-webkit-scrollbar{display:none}
+.pill{
+  flex:0 0 auto; min-height:44px;
+  padding:10px 16px; border-radius:22px;
+  border:2px solid var(--brd2); background:#fff;
+  color:var(--sub); font-size:14.5px; font-weight:700;
+  cursor:pointer; white-space:nowrap;
+}
+.pill:active{transform:scale(.96)}
+.pill.on{background:var(--ink2); color:#fff; border-color:var(--ink2)}
+
+/* Segmented control (Customers / Vehicles) */
+.segment{
+  display:flex; gap:4px; padding:4px;
+  background:var(--bg); border:1.5px solid var(--brd);
+  border-radius:var(--r12); margin-bottom:12px;
+}
+.segment button{
+  flex:1; min-height:48px; border:none; border-radius:9px;
+  background:transparent; color:var(--sub);
+  font-size:15px; font-weight:700; cursor:pointer;
+}
+.segment button.on{background:var(--ink2); color:#fff; box-shadow:0 2px 8px rgba(0,0,0,.14)}
+
+.summary-bar{
+  display:flex; gap:16px; flex-wrap:wrap;
+  padding:12px 14px; background:var(--card);
+  border:1.5px solid var(--brd); border-radius:var(--r12);
+  margin-bottom:12px; font-size:14px; font-weight:600; color:var(--sub);
+}
+.summary-bar .hi{color:var(--ink); font-weight:800}
+.summary-bar .warn{color:var(--amb); font-weight:800}
+
+/* ==========================================================================
+   LIST CARDS (bills / expenses / history / jobs)
+   ========================================================================== */
+
+.lcard{
+  position:relative; overflow:hidden;
+  background:var(--card);
+  border:1.5px solid var(--brd);
+  border-radius:var(--r16);
+  padding:14px 14px 14px 18px;
+  margin-bottom:11px;
+  box-shadow:var(--sh);
+}
+.lcard::before{
+  content:''; position:absolute; left:0; top:0; bottom:0; width:5px;
+  background:var(--brd2);
+}
+.lcard.paid::before{background:var(--grn)}
+.lcard.unpaid::before{background:var(--amb)}
+.lcard.overdue::before{background:var(--red)}
+.lcard.waiting::before{background:var(--mute)}
+.lcard.in_progress::before{background:var(--amb)}
+.lcard.done::before{background:var(--grn)}
+.lcard.collected::before{background:var(--blu)}
+.lcard.collected{opacity:.72}
+
+.lcard-head{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:10px; margin-bottom:8px;
+}
+.lcard-name{
+  font-size:17px; font-weight:800; color:var(--ink);
+  line-height:1.25; word-break:break-word;
+}
+.lcard-ref{font-size:14px; font-weight:500; color:var(--mute)}
+.lcard-amt{
+  font-size:19px; font-weight:800; color:var(--ink);
+  white-space:nowrap; flex-shrink:0;
+}
+.lcard-amt.red{color:var(--red)}
+
+.lcard-meta{
+  display:flex; flex-wrap:wrap; gap:6px 14px;
+  font-size:14px; color:var(--mute);
+  margin-bottom:12px;
+}
+.lcard-meta .hi{color:var(--ink); font-weight:700}
+.lcard-desc{font-size:15.5px; color:var(--ink3); font-weight:600; margin-bottom:8px}
+
+.lcard-acts{display:flex; gap:8px; flex-wrap:wrap}
+.lcard-acts .btn{flex:1; min-width:82px}
+.lcard-acts .btn-icon{flex:0 0 auto; min-width:44px}
+/* Rows whose only action is destructive: keep it small and off to the side
+   so it is never the biggest thing on the card. */
+.lcard-acts.end{justify-content:flex-end}
+.lcard-acts.end .btn{flex:0 0 auto}
+
+/* Status badge — tappable, so it gets a real target size. */
+.badge{
+  display:inline-flex; align-items:center; gap:5px;
+  min-height:34px; padding:6px 13px;
+  border-radius:18px; border:2px solid transparent;
+  font-size:13px; font-weight:800; letter-spacing:.3px;
+  cursor:pointer; user-select:none; -webkit-user-select:none;
+  white-space:nowrap; margin-top:6px;
+}
+.badge:active{transform:scale(.95)}
+.badge.paid     {background:var(--grn-s); color:var(--grn); border-color:var(--grn-b)}
+.badge.unpaid   {background:var(--amb-s); color:var(--amb); border-color:var(--amb-b)}
+.badge.overdue  {background:var(--red-s); color:var(--red); border-color:var(--red-b)}
+.badge.waiting  {background:var(--bg);    color:var(--sub); border-color:var(--brd2)}
+.badge.in_progress{background:var(--amb-s); color:var(--amb); border-color:var(--amb-b)}
+.badge.done     {background:var(--grn-s); color:var(--grn); border-color:var(--grn-b)}
+.badge.collected{background:var(--blu-s); color:var(--blu); border-color:var(--blu-b)}
+
+/* History + expense rows lead with a big glyph for fast scanning. */
+.lcard-ico{
+  width:44px; height:44px; flex-shrink:0;
+  background:var(--red-s); border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; line-height:1;
+}
+.lcard-flex{display:flex; align-items:flex-start; gap:12px}
+.lcard-flex > div:nth-child(2){flex:1; min-width:0}
+
+/* ==========================================================================
+   EMPTY STATES
+   ========================================================================== */
+
+.empty{text-align:center; padding:56px 20px}
+.empty svg{opacity:.16; margin-bottom:18px}
+.empty-t{font-size:18px; font-weight:800; color:var(--ink); margin-bottom:7px}
+.empty-s{font-size:15px; color:var(--mute); line-height:1.5}
+
+/* ==========================================================================
+   BOTTOM NAV — the primary navigation on phones
+   ========================================================================== */
+
+.bottom-nav{
+  position:fixed; left:0; right:0; bottom:0; z-index:70;
+  display:flex;
+  background:#fff;
+  border-top:1px solid var(--brd);
+  padding-bottom:var(--safe-b);
+  box-shadow:0 -3px 16px rgba(15,23,42,.09);
+}
+.nav-btn{
+  flex:1; min-width:0;
+  height:var(--nav-h);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:4px;
+  border:none; background:transparent;
+  color:var(--mute); cursor:pointer;
+  padding:6px 2px;
+  position:relative;
+}
+.nav-btn svg{flex-shrink:0}
+.nav-btn span{
+  font-size:10.5px; font-weight:700; letter-spacing:.2px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  max-width:100%;
+}
+.nav-btn:active{background:var(--bg)}
+.nav-btn.on{color:var(--red)}
+.nav-btn.on::before{
+  content:''; position:absolute; top:0; left:22%; right:22%;
+  height:3px; background:var(--red); border-radius:0 0 3px 3px;
+}
+/* Unread-style count for jobs still on the board */
+.nav-dot{
+  position:absolute; top:9px; left:calc(50% + 7px);
+  min-width:18px; height:18px; padding:0 5px;
+  background:var(--red); color:#fff;
+  border-radius:9px; font-size:10.5px; font-weight:800;
+  display:none; align-items:center; justify-content:center;
+  border:2px solid #fff;
+}
+.nav-dot.show{display:flex}
+
+/* ==========================================================================
+   TOASTS
+   ========================================================================== */
+
+#toasts{
+  position:fixed; left:12px; right:12px;
+  top:calc(var(--safe-t) + 12px);
+  z-index:10001;
+  display:flex; flex-direction:column; gap:8px;
+  pointer-events:none;
+}
+.toast{
+  display:flex; align-items:flex-start; gap:11px;
+  padding:15px 16px; border-radius:var(--r12);
+  font-size:15.5px; font-weight:700; color:#fff;
+  box-shadow:var(--sh-lg); pointer-events:auto;
+  animation:tin .24s cubic-bezier(.4,0,.2,1);
+  line-height:1.4;
+}
+.toast.ok{background:var(--ink2)}
+.toast.err{background:var(--red)}
+.toast.info{background:#1d4ed8}
+.toast .ico{flex-shrink:0; font-size:16px}
+.toast .msg{flex:1}
+@keyframes tin{from{transform:translateY(-18px);opacity:0}to{transform:none;opacity:1}}
+@keyframes tout{to{transform:translateY(-18px);opacity:0}}
+
+/* ==========================================================================
+   MODAL / SHEET — bottom sheets read better than centred dialogs on phones
+   ========================================================================== */
+
+.sheet-ov{
+  position:fixed; inset:0; z-index:10000;
+  background:rgba(15,23,42,.55);
+  display:none; align-items:flex-end; justify-content:center;
+  animation:fadein .2s ease;
+}
+.sheet-ov.open{display:flex}
+.sheet-ov.closing{animation:fadeout .18s ease forwards}
+
+.sheet{
+  width:100%; max-width:560px;
+  background:var(--card);
+  border-radius:var(--r20) var(--r20) 0 0;
+  padding:10px 18px calc(20px + var(--safe-b));
+  max-height:92vh; overflow-y:auto;
+  animation:slideup .26s cubic-bezier(.16,1,.3,1);
+  box-shadow:0 -8px 40px rgba(0,0,0,.3);
+}
+.sheet-ov.closing .sheet{animation:slidedown .18s ease forwards}
+.sheet-grip{
+  width:44px; height:5px; border-radius:3px;
+  background:var(--brd2); margin:2px auto 18px;
+}
+.sheet-ico{
+  width:56px; height:56px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:26px; margin-bottom:16px;
+}
+.sheet-ico.danger{background:var(--red-s)}
+.sheet-ico.warn{background:var(--amb-s)}
+.sheet-ico.wa{background:#dcfce7}
+.sheet-title{font-size:20px; font-weight:800; color:var(--ink); margin-bottom:8px}
+.sheet-msg{font-size:16px; color:var(--sub); line-height:1.55; margin-bottom:22px}
+.sheet-acts{display:flex; flex-direction:column; gap:10px}
+
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes fadeout{to{opacity:0}}
+@keyframes slideup{from{transform:translateY(100%)}to{transform:none}}
+@keyframes slidedown{to{transform:translateY(100%)}}
+
+/* WhatsApp two-step */
+.wa-step{
+  background:var(--bg); border-radius:var(--r12);
+  padding:15px; margin-bottom:12px;
+}
+.wa-step-num{
+  font-size:11.5px; font-weight:800; color:var(--sub);
+  letter-spacing:1.3px; text-transform:uppercase; margin-bottom:11px;
+}
+.wa-hint{font-size:14px; color:var(--mute); margin-top:11px; line-height:1.55}
+.wa-hint strong{color:var(--ink)}
+
+/* Collapsible "add" form on the job board */
+.collapse{display:none; margin-bottom:14px}
+.collapse.open{display:block}
+
+/* Install-to-home-screen prompt */
+.install-bar{
+  display:none; align-items:center; gap:12px;
+  background:var(--ink2); color:#fff;
+  border-radius:var(--r12); padding:13px 14px;
+  margin-bottom:14px;
+}
+.install-bar.show{display:flex}
+.install-bar .txt{flex:1; font-size:14.5px; font-weight:600; line-height:1.4}
+.install-bar .btn{min-height:44px; padding:10px 16px; font-size:15px}
+
+.hidden{display:none !important}
+
+/* ==========================================================================
+   LARGER PHONES / TABLETS — widen but never lose the touch sizing
+   ========================================================================== */
+
+@media (min-width:600px){
+  .pane{max-width:720px; margin:0 auto; padding-left:20px; padding-right:20px}
+  .stat-grid,.stat-grid.four{grid-template-columns:repeat(4,1fr)}
+  .field-row{gap:14px}
+  .appbar-top{max-width:760px; margin:0 auto}
+  .stat-strip{max-width:760px; margin:0 auto}
+  .sheet{border-radius:var(--r20); margin-bottom:5vh}
+  .sheet-ov{align-items:center}
+  .sticky-total{padding-left:calc(50% - 340px); padding-right:calc(50% - 340px)}
+}
+
+/* Pointer devices get hover affordances; touch devices never see them. */
+@media (hover:hover) and (pointer:fine){
+  .btn:hover{filter:brightness(1.06)}
+  .lcard:hover{border-color:var(--brd2)}
+  .pill:hover:not(.on){border-color:var(--red); color:var(--red)}
+  .nav-btn:hover{color:var(--ink)}
+  .item-del:hover{background:var(--red-s); color:var(--red)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important; transition-duration:.01ms !important}
+}
+
+/* ==========================================================================
+   PRINTED INVOICE
+   The A4 sheet is rendered into #print-root inside this document (not an
+   iframe) because iframe printing is unreliable on mobile Safari and on
+   some Android WebViews. On screen it is hidden; when printing we hide the
+   app instead and let the sheet through.
+   ========================================================================== */
+
+#print-root{display:none}
+
+@media print{
+  @page{size:A4 portrait; margin:0}
+
+  html,body{
+    background:#fff !important;
+    width:210mm; height:auto;
+    overflow:visible;
+  }
+  /* Hide the whole app; only the invoice sheet survives. */
+  body > *{display:none !important}
+  body > #print-root{display:block !important}
+
+  #print-root,
+  #print-root *{
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+}
+
+/* Sheet styles live outside the print query so the markup is identical
+   whether it is printed or (during development) previewed on screen. */
+.psheet{
+  width:210mm; height:297mm;
+  display:flex; flex-direction:column;
+  position:relative; overflow:hidden;
+  background:#fff; color:#1a1a1a;
+  font-family:Arial,Helvetica,sans-serif;
+  line-height:1.3;
+}
+.psheet *{box-sizing:border-box; margin:0; padding:0}
+
+.p-bar{height:5mm; background:#1e293b; flex-shrink:0}
+
+.p-hdr{display:flex; height:56mm; flex-shrink:0}
+.p-hl{
+  background:#c1272d; width:58%;
+  clip-path:polygon(0 0,100% 0,82% 100%,0 100%);
+  display:flex; flex-direction:column;
+  align-items:flex-start; justify-content:center;
+  padding:5mm 14mm 5mm 9mm; gap:2mm;
+}
+.p-car{width:27mm; height:21mm}
+.p-bn{
+  font-size:10mm; font-weight:900; color:#fff;
+  letter-spacing:.5px; line-height:1;
+  font-family:Impact,"Arial Black",Arial,sans-serif;
+}
+.p-bt{font-size:2.6mm; color:rgba(255,255,255,.85); letter-spacing:3.5px; font-weight:700}
+.p-hr{flex:1; display:flex; flex-direction:column; justify-content:center; padding:5mm 6mm 5mm 10mm}
+.p-itl{
+  font-size:14mm; font-weight:900; color:#c1272d;
+  letter-spacing:2px; line-height:1; margin-bottom:5mm;
+  font-family:Impact,"Arial Black",Arial,sans-serif;
+}
+.p-fr{display:flex; align-items:baseline; margin-bottom:2.5mm}
+.p-fl{font-weight:700; color:#1a1a1a; font-size:3mm; min-width:28mm; white-space:nowrap}
+.p-fd{flex:1; border-bottom:1.2px dotted #b0b8c8; margin:0 2mm; position:relative; top:-1.5mm}
+.p-fv{font-size:3mm; color:#1a1a1a; min-width:32mm; font-weight:700}
+
+.p-bts{display:flex; padding:4.5mm 9mm; border-bottom:1px solid #e4eaf0; flex-shrink:0; min-height:30mm}
+.p-btl{flex:1; padding-right:6mm; border-right:1px solid #dde4ec}
+.p-btlb{font-size:2.8mm; font-weight:700; color:#c1272d; letter-spacing:1px; margin-bottom:2.5mm}
+.p-btll{
+  font-size:3.3mm; color:#1a1a1a; margin-bottom:2mm;
+  border-bottom:1px dotted #c5ccd6; padding-bottom:1mm;
+  min-height:6.5mm; display:flex; align-items:flex-end;
+}
+.p-btr{width:62mm; padding-left:8mm; display:flex; flex-direction:column; justify-content:center; gap:1.5mm}
+.p-cn{font-size:5mm; font-weight:900; color:#1a1a1a; font-family:Impact,"Arial Black",Arial,sans-serif}
+.p-cb{width:20mm; height:.8mm; background:#c1272d; margin:1.5mm 0}
+.p-ct{font-size:2.8mm; color:#c1272d; font-weight:700; letter-spacing:2px}
+
+.p-items{padding:3mm 9mm 0; flex-shrink:0}
+.p-tbl{width:100%; border-collapse:collapse}
+.p-tbl th{
+  background:#1e293b; color:rgba(255,255,255,.75);
+  padding:2.5mm 3mm; font-size:2.8mm; letter-spacing:.5px; text-align:left;
+}
+.p-thc{text-align:center}
+.p-thr{text-align:right}
+.p-c{padding:2mm 3mm; font-size:3mm; border-bottom:1px solid #edf1f7; height:9.8mm; vertical-align:middle}
+/* When a bill runs past 7 lines the rows compress so the sheet stays on one page. */
+.psheet.dense .p-c{height:6.6mm; padding:1.2mm 3mm; font-size:2.7mm}
+.psheet.dense .p-hdr{height:46mm}
+.p-tc{text-align:center}
+.p-tr{text-align:right}
+.p-pr{padding-right:4mm}
+
+.p-bot{display:flex; padding:4mm 9mm 0; gap:5mm; flex-shrink:0}
+.p-veh{flex:1}
+.p-vh{background:#1e293b; color:rgba(255,255,255,.75); padding:2.2mm 3mm; font-size:2.8mm; font-weight:700; letter-spacing:1px}
+.p-vb{border:1px solid #dde4ec; border-top:none; padding:3mm}
+.p-vr{display:flex; align-items:baseline; margin-bottom:2.8mm; font-size:3mm}
+.p-vk{font-weight:700; font-size:2.8mm; color:#334155; min-width:32mm; white-space:nowrap}
+.p-vd{flex:1; border-bottom:1px dotted #b0b8c8; height:1mm; position:relative; top:-.5mm; margin:0 1.5mm}
+.p-vv{font-size:3mm; min-width:20mm; color:#1a1a1a; font-weight:700}
+
+.p-tots{width:70mm}
+.p-tr2{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:2.2mm 3mm; border:1px solid #dde4ec; border-top:none;
+  font-size:3.2mm; color:#1a1a1a;
+}
+.p-tr2:first-child{border-top:1px solid #dde4ec}
+.p-tr2.gd{background:#c1272d; color:#fff; font-weight:700; font-size:4mm; letter-spacing:.5px}
+.p-tv{font-weight:700}
+
+.p-nt{padding:3mm 9mm 0; flex-shrink:0}
+.p-nl{font-size:2.8mm; font-weight:700; color:#c1272d; letter-spacing:1px; margin-bottom:2mm}
+.p-nl2{
+  border-bottom:1px dotted #c0c8d4; min-height:6mm; margin-bottom:2mm;
+  font-size:3mm; padding-bottom:1mm; display:flex; align-items:flex-end; color:#1a1a1a;
+}
+
+.p-ft{
+  margin-top:auto; display:flex; padding:3mm 9mm;
+  align-items:flex-start; border-top:1px solid #e4eaf0; flex-shrink:0;
+}
+.p-ftl{display:flex; align-items:center; gap:3mm; flex:1; padding-right:6mm; border-right:1px solid #dde4ec}
+.p-ftt{font-size:2.8mm; color:#334155; line-height:1.65}
+.p-ftt strong{color:#c1272d}
+.p-ftr{padding-left:6mm; flex:1}
+.p-tt{font-size:2.8mm; font-weight:700; color:#c1272d; letter-spacing:1px; margin-bottom:2mm}
+.p-ti{font-size:2.6mm; color:#475569; margin-bottom:1.5mm; padding-left:3mm; position:relative; line-height:1.4}
+.p-ti::before{content:"\2022"; position:absolute; left:0; color:#c1272d}
+.p-cor{
+  position:absolute; bottom:0; right:0; width:26mm; height:13mm;
+  background:#c1272d; clip-path:polygon(100% 0,100% 100%,0 100%);
+}

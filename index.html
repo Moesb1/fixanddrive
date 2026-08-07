@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fix &amp; Drive</title>
+
+<meta name="description" content="Invoices, expenses and job board for Fix and Drive auto garage. Works offline.">
+<meta name="theme-color" content="#c1272d">
+<meta name="color-scheme" content="light">
+
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+
+<!-- iOS home-screen support (Safari still ignores most of the manifest) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fix &amp; Drive">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══ TOASTS ══ -->
+<div id="toasts"></div>
+
+<!-- ══ APP BAR ══ -->
+<header class="appbar">
+  <div class="appbar-top">
+    <div class="logo-badge">
+      <svg width="26" height="26" viewBox="0 0 130 95" fill="none" aria-hidden="true">
+        <path d="M42 40Q44 20 56 18L74 18Q86 18 88 40Z" fill="white"/>
+        <rect x="10" y="40" width="110" height="23" rx="6" fill="white"/>
+        <rect x="6" y="44" width="9" height="12" rx="3" fill="white"/>
+        <rect x="115" y="44" width="9" height="12" rx="3" fill="white"/>
+        <circle cx="32" cy="63" r="16" fill="white"/><circle cx="32" cy="63" r="7" fill="#c1272d"/>
+        <circle cx="98" cy="63" r="16" fill="white"/><circle cx="98" cy="63" r="7" fill="#c1272d"/>
+        <rect x="56" y="77" width="18" height="13" fill="white"/>
+        <rect x="26" y="88" width="78" height="5" rx="2.5" fill="white"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <div class="logo-name">FIX AND DRIVE</div>
+      <div class="logo-tag">We Fix · You Drive</div>
+    </div>
+    <div class="curr-box">
+      <select class="curr-sel" id="curr-sel" aria-label="Currency">
+        <option value="USD">$ USD</option>
+        <option value="EUR">€ EUR</option>
+        <option value="LBP">L.L. LBP</option>
+        <option value="GBP">£ GBP</option>
+        <option value="AED">AED</option>
+      </select>
+      <div class="curr-rate" id="curr-rate">Base · Jun 2026</div>
+    </div>
+  </div>
+
+  <div class="stat-strip" id="stat-strip">
+    <div class="stat-pill"><div class="v" id="h-cnt">0</div><div class="l">Bills</div></div>
+    <div class="stat-pill"><div class="v" id="h-rev">—</div><div class="l">Revenue</div></div>
+    <div class="stat-pill"><div class="v" id="h-lab" style="color:#fbbf24">—</div><div class="l">Labour</div></div>
+    <div class="stat-pill"><div class="v" id="h-unp" style="color:#f87171">—</div><div class="l">Unpaid</div></div>
+    <div class="stat-pill"><div class="v" id="h-profit" style="color:#34d399">—</div><div class="l">Profit</div></div>
+  </div>
+</header>
+
+<main>
+
+<!-- ══════════════════ 1 · NEW BILL ══════════════════ -->
+<section id="pane-new" class="pane on">
+
+  <div class="install-bar" id="install-bar">
+    <div class="txt">Add Fix &amp; Drive to your home screen so it opens like an app.</div>
+    <button class="btn btn-red" id="install-btn" type="button">Install</button>
+  </div>
+
+  <h1 class="pane-title">New Bill</h1>
+
+  <div class="card">
+    <div class="sect-head">
+      <div class="sect-ico">
+        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+      </div>
+      <span class="sect-title">Invoice Details</span>
+    </div>
+    <div class="field">
+      <label for="inv-no">Invoice No.</label>
+      <input type="text" id="inv-no" placeholder="INV-001" autocomplete="off">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="inv-date">Date</label>
+        <input type="date" id="inv-date">
+      </div>
+      <div class="field">
+        <label for="inv-due">Due Date</label>
+        <input type="date" id="inv-due">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sect-head">
+      <div class="sect-ico">
+        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <span class="sect-title">Customer</span>
+    </div>
+    <div class="field">
+      <label for="cust-name">Customer Name</label>
+      <input type="text" id="cust-name" placeholder="Full name" autocomplete="name">
+    </div>
+    <div class="field">
+      <label for="cust-phone">Phone</label>
+      <input type="tel" id="cust-phone" placeholder="+961 ..." autocomplete="tel" inputmode="tel">
+    </div>
+    <div class="field">
+      <label for="cust-addr">Address / Notes</label>
+      <input type="text" id="cust-addr" placeholder="Address or extra info" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sect-head">
+      <div class="sect-ico">
+        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h13l4 4v4a2 2 0 01-2 2h-1"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+      </div>
+      <span class="sect-title">Vehicle</span>
+    </div>
+    <div class="field">
+      <label for="veh-model">Make &amp; Model</label>
+      <input type="text" id="veh-model" placeholder="e.g. Toyota Corolla 2020" autocomplete="off">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="veh-plate">Plate</label>
+        <input type="text" id="veh-plate" placeholder="ABC 1234" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="veh-km">Kilometers</label>
+        <input type="text" id="veh-km" placeholder="85,000" inputmode="numeric" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sect-head">
+      <div class="sect-ico">
+        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+      </div>
+      <span class="sect-title">Services &amp; Parts</span>
+    </div>
+    <div id="items"></div>
+    <button class="add-item" type="button" id="add-item-btn">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Add Item
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="sect-head">
+      <div class="sect-ico">
+        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      </div>
+      <span class="sect-title">Totals</span>
+    </div>
+    <div class="totals">
+      <div class="totals-body">
+        <div class="trow"><span class="trow-l">Subtotal</span><span class="trow-v" id="c-sub">—</span></div>
+        <div class="trow labour"><span class="trow-l">↳ Labour</span><span class="trow-v" id="c-lab">—</span></div>
+        <div class="trow">
+          <span class="trow-l">Discount</span>
+          <input type="number" id="discount" value="0" min="0" step="0.01" inputmode="decimal">
+        </div>
+        <div class="trow">
+          <span class="trow-l">Tax&nbsp;(%)</span>
+          <input type="number" id="tax-pct" value="0" min="0" max="100" step="0.1" inputmode="decimal">
+        </div>
+      </div>
+      <div class="grand">
+        <span class="grand-l">Total Due</span>
+        <span class="grand-v" id="c-total">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sect-head">
+      <div class="sect-ico">
+        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
+      <span class="sect-title">Notes</span>
+    </div>
+    <div class="field">
+      <textarea id="inv-notes" rows="2" placeholder="Any additional notes..."></textarea>
+    </div>
+  </div>
+
+  <div class="btn-stack">
+    <button class="btn btn-red btn-block" type="button" id="save-bill-btn">
+      <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Save Bill
+    </button>
+    <div class="btn-pair">
+      <button class="btn btn-dark" type="button" id="print-bill-btn">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print
+      </button>
+      <button class="btn btn-wa" type="button" id="wa-bill-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.775.462 3.448 1.27 4.906L2 22l5.237-1.242A9.953 9.953 0 0012 22c5.522 0 10-4.477 10-10S17.521 2 11.999 2zm.001 18a7.96 7.96 0 01-4.073-1.118l-.292-.174-3.108.736.773-3.03-.19-.31A7.96 7.96 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>
+        Send
+      </button>
+    </div>
+    <button class="btn btn-ghost btn-block" type="button" id="clear-form-btn">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+      Clear Form
+    </button>
+  </div>
+
+  <div class="sticky-total" id="sticky-total">
+    <div><div class="l">Total Due</div><div class="v" id="s-total">—</div></div>
+    <button class="btn btn-red btn-sm" type="button" id="sticky-save-btn">Save Bill</button>
+  </div>
+
+</section>
+
+<!-- ══════════════════ 2 · SAVED BILLS ══════════════════ -->
+<section id="pane-saved" class="pane">
+  <h1 class="pane-title">Saved Bills</h1>
+
+  <div class="stat-grid">
+    <div class="stat-box"><div class="n" id="b-cnt">0</div><div class="l">Total Bills</div></div>
+    <div class="stat-box"><div class="n" id="b-rev">—</div><div class="l">All Revenue</div></div>
+    <div class="stat-box amber"><div class="n" id="b-lab">—</div><div class="l">Labour</div></div>
+    <div class="stat-box amber"><div class="n" id="b-unp">—</div><div class="l">Unpaid</div></div>
+  </div>
+
+  <div class="search-wrap">
+    <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input type="search" id="srch" placeholder="Customer, car, plate, invoice no." autocomplete="off">
+    <button class="search-clear" type="button" data-clears="srch" aria-label="Clear search">✕</button>
+  </div>
+
+  <div id="srch-sum"></div>
+  <div id="bills-list"></div>
+
+  <div class="btn-pair" style="margin-top:16px">
+    <button class="btn btn-ghost btn-sm" type="button" id="export-bills-btn">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Backup
+    </button>
+    <button class="btn btn-ghost btn-sm" type="button" id="import-bills-btn">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Restore
+    </button>
+  </div>
+  <input type="file" id="file-in" accept="application/json,.json" class="hidden">
+</section>
+
+<!-- ══════════════════ 3 · EXPENSES ══════════════════ -->
+<section id="pane-expenses" class="pane">
+  <h1 class="pane-title">Expenses</h1>
+
+  <div class="stat-grid four">
+    <div class="stat-box"><div class="n" id="e-cnt">0</div><div class="l">Entries</div></div>
+    <div class="stat-box"><div class="n" id="e-total">—</div><div class="l">Total Spent</div></div>
+    <div class="stat-box"><div class="n" id="e-month">—</div><div class="l">This Month</div></div>
+    <div class="stat-box green" id="e-profit-card">
+      <div class="n" id="e-profit">—</div><div class="l" id="e-profit-lbl">Net Profit</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sect-head">
+      <div class="sect-ico">
+        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+      <span class="sect-title">Add Expense</span>
+    </div>
+    <div class="field">
+      <label for="exp-cat">Category</label>
+      <select id="exp-cat">
+        <option value="">Select category...</option>
+        <option value="Rent">🏠 Rent</option>
+        <option value="Utilities">💡 Utilities</option>
+        <option value="Tools &amp; Equipment">🔧 Tools &amp; Equipment</option>
+        <option value="Parts Purchase">📦 Parts Purchase</option>
+        <option value="Salaries">👥 Salaries</option>
+        <option value="Fuel">⛽ Fuel</option>
+        <option value="Insurance">🛡️ Insurance</option>
+        <option value="Maintenance">🔩 Maintenance</option>
+        <option value="Advertising">📢 Advertising</option>
+        <option value="Other">📋 Other</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="exp-amt">Amount</label>
+        <input type="number" id="exp-amt" placeholder="0.00" min="0" step="0.01" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="exp-date">Date</label>
+        <input type="date" id="exp-date">
+      </div>
+    </div>
+    <div class="field">
+      <label for="exp-desc">Description</label>
+      <input type="text" id="exp-desc" placeholder="e.g. Monthly rent payment" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="exp-vendor">Vendor / Supplier</label>
+      <input type="text" id="exp-vendor" placeholder="e.g. Auto parts store" autocomplete="off">
+    </div>
+    <button class="btn btn-red btn-block" type="button" id="save-exp-btn">
+      <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Add Expense
+    </button>
+  </div>
+
+  <div class="sect-head" style="margin-top:20px">
+    <div class="sect-ico">
+      <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+    </div>
+    <span class="sect-title">Expense History</span>
+  </div>
+
+  <div class="pill-row" id="exp-cat-pills">
+    <button class="pill on" type="button" data-cat="">All</button>
+    <button class="pill" type="button" data-cat="Rent">🏠 Rent</button>
+    <button class="pill" type="button" data-cat="Utilities">💡 Utilities</button>
+    <button class="pill" type="button" data-cat="Tools &amp; Equipment">🔧 Tools</button>
+    <button class="pill" type="button" data-cat="Parts Purchase">📦 Parts</button>
+    <button class="pill" type="button" data-cat="Salaries">👥 Salaries</button>
+    <button class="pill" type="button" data-cat="Fuel">⛽ Fuel</button>
+    <button class="pill" type="button" data-cat="Insurance">🛡️ Insurance</button>
+    <button class="pill" type="button" data-cat="Maintenance">🔩 Maint.</button>
+    <button class="pill" type="button" data-cat="Advertising">📢 Ads</button>
+    <button class="pill" type="button" data-cat="Other">📋 Other</button>
+  </div>
+
+  <div id="exp-sum"></div>
+  <div id="exp-list"></div>
+
+  <button class="btn btn-ghost btn-block btn-sm" type="button" id="export-exp-btn" style="margin-top:16px">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Export Expenses
+  </button>
+</section>
+
+<!-- ══════════════════ 4 · HISTORY ══════════════════ -->
+<section id="pane-history" class="pane">
+  <h1 class="pane-title">History</h1>
+
+  <div class="segment" id="hist-segment">
+    <button type="button" class="on" data-view="customers">👤 Customers</button>
+    <button type="button" data-view="vehicles">🚗 Vehicles</button>
+  </div>
+
+  <div class="search-wrap">
+    <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input type="search" id="hist-srch" placeholder="Search names, plates, models" autocomplete="off">
+    <button class="search-clear" type="button" data-clears="hist-srch" aria-label="Clear search">✕</button>
+  </div>
+
+  <div id="hist-stats-bar"></div>
+  <div id="hist-list"></div>
+</section>
+
+<!-- ══════════════════ 5 · JOB BOARD ══════════════════ -->
+<section id="pane-jobs" class="pane">
+  <h1 class="pane-title">Job Board</h1>
+
+  <div class="stat-grid four">
+    <div class="stat-box"><div class="n" id="j-wait">0</div><div class="l">Waiting</div></div>
+    <div class="stat-box amber"><div class="n" id="j-wip">0</div><div class="l">In Progress</div></div>
+    <div class="stat-box green"><div class="n" id="j-done">0</div><div class="l">Done</div></div>
+    <div class="stat-box blue"><div class="n" id="j-coll">0</div><div class="l">Collected</div></div>
+  </div>
+
+  <button class="btn btn-red btn-block" type="button" id="add-job-btn" style="margin-bottom:14px">
+    <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    Add New Job
+  </button>
+
+  <div class="collapse card" id="add-job-form">
+    <div class="sect-head">
+      <div class="sect-ico">
+        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.4" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+      <span class="sect-title">New Job</span>
+    </div>
+    <div class="field">
+      <label for="j-cust">Customer Name</label>
+      <input type="text" id="j-cust" placeholder="e.g. Georges Khoury" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="j-phone">Phone (optional)</label>
+      <input type="tel" id="j-phone" placeholder="+961 ..." inputmode="tel" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="j-model">Car Model</label>
+      <input type="text" id="j-model" placeholder="e.g. Toyota Corolla 2020" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="j-plate">Plate</label>
+      <input type="text" id="j-plate" placeholder="ABC 1234" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="j-job">Job Description</label>
+      <input type="text" id="j-job" placeholder="e.g. Full service + brake pads" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="j-notes">Notes (optional)</label>
+      <input type="text" id="j-notes" placeholder="Any extra info..." autocomplete="off">
+    </div>
+    <div class="btn-stack">
+      <button class="btn btn-red btn-block" type="button" id="save-job-btn">Add to Board</button>
+      <button class="btn btn-ghost btn-block" type="button" id="cancel-job-btn">Cancel</button>
+    </div>
+  </div>
+
+  <label class="pill" style="display:inline-flex;align-items:center;gap:10px;margin-bottom:14px">
+    <input type="checkbox" id="show-collected" style="width:22px;height:22px;accent-color:#c1272d">
+    Show collected
+  </label>
+
+  <div id="jobs-list"></div>
+</section>
+
+</main>
+
+<!-- ══ BOTTOM NAV ══ -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="nav-btn on" type="button" data-tab="new">
+    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    <span>New Bill</span>
+  </button>
+  <button class="nav-btn" type="button" data-tab="saved">
+    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    <span>Bills</span>
+  </button>
+  <button class="nav-btn" type="button" data-tab="expenses">
+    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+    <span>Expenses</span>
+  </button>
+  <button class="nav-btn" type="button" data-tab="history">
+    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    <span>History</span>
+  </button>
+  <button class="nav-btn" type="button" data-tab="jobs">
+    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    <span>Jobs</span>
+    <span class="nav-dot" id="jobs-dot">0</span>
+  </button>
+</nav>
+
+<!-- ══ CONFIRM SHEET ══ -->
+<div class="sheet-ov" id="confirm-sheet">
+  <div class="sheet">
+    <div class="sheet-grip"></div>
+    <div class="sheet-ico" id="confirm-ico"></div>
+    <div class="sheet-title" id="confirm-title"></div>
+    <div class="sheet-msg" id="confirm-msg"></div>
+    <div class="sheet-acts">
+      <button class="btn btn-block" id="confirm-ok" type="button">Confirm</button>
+      <button class="btn btn-ghost btn-block" id="confirm-cancel" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WHATSAPP SHEET ══ -->
+<div class="sheet-ov" id="wa-sheet">
+  <div class="sheet">
+    <div class="sheet-grip"></div>
+    <div class="sheet-ico wa">📱</div>
+    <div class="sheet-title">Send Invoice on WhatsApp</div>
+    <div class="sheet-msg" id="wa-info" style="margin-bottom:18px">—</div>
+
+    <div class="wa-step">
+      <div class="wa-step-num">Step 1 — Save the invoice as a PDF</div>
+      <button class="btn btn-dark btn-block" type="button" id="wa-print-btn">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Open Print Dialog
+      </button>
+      <div class="wa-hint">Choose <strong>Save as PDF</strong> in the print screen, then Save. The file goes to your Downloads.</div>
+    </div>
+
+    <div class="wa-step">
+      <div class="wa-step-num">Step 2 — Open the chat and attach it</div>
+      <a class="btn btn-wa btn-block" id="wa-open-btn" href="https://wa.me/" target="_blank" rel="noopener noreferrer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.775.462 3.448 1.27 4.906L2 22l5.237-1.242A9.953 9.953 0 0012 22c5.522 0 10-4.477 10-10S17.521 2 11.999 2zm.001 18a7.96 7.96 0 01-4.073-1.118l-.292-.174-3.108.736.773-3.03-.19-.31A7.96 7.96 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>
+        Open WhatsApp Chat →
+      </a>
+      <div class="wa-hint">In the chat tap the <strong>📎 clip</strong>, pick <strong>Document</strong>, and choose the PDF you just saved.</div>
+    </div>
+
+    <div class="sheet-acts" style="margin-top:6px">
+      <button class="btn btn-ghost btn-block" type="button" id="wa-close-btn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PRINTED INVOICE (filled in by app.js, hidden on screen) ══ -->
+<div id="print-root" aria-hidden="true"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
