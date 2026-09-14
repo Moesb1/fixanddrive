@@ -1344,15 +1344,32 @@ function initKbdLabels(){
 
 function registerSW(){
   if(!('serviceWorker' in navigator)) return;
+
+  /* The worker serves cache-first, so the first visit after a deploy renders
+     the OLD page while the new worker installs in the background. Nobody is
+     going to think to hard-refresh a garage app, so when the new worker takes
+     over we reload once, by ourselves, and land on the new version.
+
+     `hadController` keeps the very first install quiet: claiming an
+     uncontrolled page also fires controllerchange, and reloading there would
+     be a pointless flash on someone's first ever visit. */
+  var hadController = !!navigator.serviceWorker.controller;
+  var reloading = false;
+
+  navigator.serviceWorker.addEventListener('controllerchange', function(){
+    if(!hadController || reloading) return;
+    reloading = true;
+    window.location.reload();
+  });
+
   window.addEventListener('load', function(){
     navigator.serviceWorker.register('sw.js').then(function(reg){
-      // Pick up a new build as soon as one is deployed.
       reg.addEventListener('updatefound', function(){
         var sw = reg.installing;
         if(!sw) return;
         sw.addEventListener('statechange', function(){
           if(sw.state === 'installed' && navigator.serviceWorker.controller){
-            toast('Update ready — close and reopen the app','info',5000);
+            toast('Updating to the latest version...','info',2500);
           }
         });
       });

@@ -148,11 +148,15 @@ will not be there offline.
 
 No build step — edit a file and reload.
 
-**After changing anything, bump `CACHE_VERSION` in `sw.js`** (`fixdrive-v3` →
-`fixdrive-v4`, …). The service worker serves cache-first, so without that bump an
-installed phone or laptop keeps running the old build forever. The same thing bites
-during local development: unregister the worker and clear caches between reloads, or
-you will be testing stale files.
+**After changing anything, bump `CACHE_VERSION` in `sw.js`** (`fixdrive-v4` →
+`fixdrive-v5`, …). The service worker serves cache-first, so without that bump an
+installed phone or laptop keeps running the old build forever.
+
+With the bump, the first visit after a deploy still renders the old page while the
+new worker installs behind it — so the app reloads itself once when the new worker
+takes over, and the user lands on the new version without knowing anything
+happened. During local development that safety net is not enough: unregister the
+worker and clear caches between reloads, or you will be testing stale files.
 
 A few layout notes worth knowing before editing the CSS:
 
