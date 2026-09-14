@@ -16,10 +16,7 @@
 
 /* ══════════════════════════ CONSTANTS ══════════════════════════ */
 
-var SK = 'fixdrive_v2_bills';
-var EK = 'fixdrive_expenses';
-var JK = 'fixdrive_jobs';
-var CK = 'fixdrive_currency';
+/* Store keys, record shapes and the generic read/write live in data.js. */
 
 var START_ITEMS = 4;      // blank rows the form opens with on a phone
 var START_ITEMS_WIDE = 6; // ...and on a laptop, where they cost no scrolling
@@ -71,32 +68,12 @@ function todayISO(){
 
 /* ══════════════════════════ STORAGE ══════════════════════════ */
 
-function readJSON(key){
-  try{
-    var raw = localStorage.getItem(key);
-    var v = raw ? JSON.parse(raw) : [];
-    return Array.isArray(v) ? v : [];
-  }catch(e){
-    return [];
-  }
-}
-function writeJSON(key,v){
-  try{
-    localStorage.setItem(key, JSON.stringify(v));
-    return true;
-  }catch(e){
-    // Quota exceeded, or Private Browsing on older iOS.
-    toast('Could not save — phone storage is full','err',5000);
-    return false;
-  }
-}
-
-function gb(){ return readJSON(SK); }
-function sb(v){ return writeJSON(SK,v); }
-function ge(){ return readJSON(EK); }
-function se(v){ return writeJSON(EK,v); }
-function gj(){ return readJSON(JK); }
-function sj(v){ return writeJSON(JK,v); }
+function gb(){ return dbRead(SK); }
+function sb(v){ return dbWrite(SK,v); }
+function ge(){ return dbRead(EK); }
+function se(v){ return dbWrite(EK,v); }
+function gj(){ return dbRead(JK); }
+function sj(v){ return dbWrite(JK,v); }
 
 /* ══════════════════════════ CURRENCY ══════════════════════════ */
 
@@ -116,24 +93,30 @@ function cvt(n, from){
   return (v / RATES[from]) * RATES[to];
 }
 
-/* Format a value that is already in the display currency. */
+/* Format a value that is already in the display currency. The sign goes in
+   front of the symbol (-$20, not $-20) — the other way round reads as a typo. */
 function fmtV(v){
+  v = parseFloat(v) || 0;
   var c = getCurr(), s = sym();
-  if(c === 'LBP') return s + Math.round(v).toLocaleString('en');
-  return s + (parseFloat(v)||0).toFixed(2);
+  var sign = v < 0 ? '-' : '';
+  v = Math.abs(v);
+  if(c === 'LBP') return sign + s + Math.round(v).toLocaleString('en');
+  return sign + s + v.toFixed(2);
 }
 
 /* Short form for the stat tiles (12.4k, 3.2M …). */
 function fmtBig(v){
   var c = getCurr(), s = sym();
   v = parseFloat(v) || 0;
+  var sign = v < 0 ? '-' : '';
+  v = Math.abs(v);
   if(c === 'LBP'){
-    if(v >= 1e9) return s + (v/1e9).toFixed(1) + 'B';
-    if(v >= 1e6) return s + (v/1e6).toFixed(1) + 'M';
-    return s + Math.round(v).toLocaleString('en');
+    if(v >= 1e9) return sign + s + (v/1e9).toFixed(1) + 'B';
+    if(v >= 1e6) return sign + s + (v/1e6).toFixed(1) + 'M';
+    return sign + s + Math.round(v).toLocaleString('en');
   }
-  if(v >= 1000) return s + (v/1000).toFixed(1) + 'k';
-  return s + Math.round(v);
+  if(v >= 1000) return sign + s + (v/1000).toFixed(1) + 'k';
+  return sign + s + Math.round(v);
 }
 
 function fm(n, from){ return fmtV(cvt(n, from || getCurr())); }
@@ -208,30 +191,78 @@ function confirmSheet(opts){
 
 /* ══════════════════════════ NAVIGATION ══════════════════════════ */
 
-var TABS = ['new','saved','expenses','history','jobs'];
+/* Eleven feature areas would mean eleven tabs, which defeats the point of a
+   simple app. They are grouped into five instead — the same count the nav has
+   always had — with a sub-tab bar inside the groups that hold two panes. */
+var GROUPS = {
+  bills:  ['new','saved'],
+  jobs:   ['jobs'],
+  people: ['customers','vehicles'],
+  shop:   ['parts','suppliers'],
+  money:  ['day','expenses']
+};
+
+var PANE_GROUP = {};
+Object.keys(GROUPS).forEach(function(g){
+  GROUPS[g].forEach(function(p){ PANE_GROUP[p] = g; });
+});
+
+var TABS = Object.keys(PANE_GROUP);
+
+/* Each pane knows how to draw itself; nothing is rendered until it is shown. */
+var RENDERERS = {
+  saved:     function(){ renderBills(); },
+  expenses:  function(){ renderExpenses(); },
+  jobs:      function(){ renderJobs(); },
+  customers: function(){ renderCustomers(); },
+  vehicles:  function(){ renderVehicles(); },
+  parts:     function(){ renderParts(); },
+  suppliers: function(){ renderSuppliers(); },
+  day:       function(){ renderDay(); }
+};
 
 function goTab(name){
   if(TABS.indexOf(name) === -1) name = 'new';
+  var group = PANE_GROUP[name];
+
   $$('.pane').forEach(function(p){ p.classList.remove('on'); });
-  $$('.nav-btn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-tab') === name); });
   var pane = $('pane-' + name);
   if(pane) pane.classList.add('on');
 
-  if(name === 'saved')    renderBills();
-  if(name === 'expenses') renderExpenses();
-  if(name === 'history')  renderHistory();
-  if(name === 'jobs')     renderJobs();
+  $$('.nav-btn').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-group') === group);
+  });
+  // Mark the active sub-tab in every group, so returning to a group later
+  // shows the right one highlighted.
+  $$('.subnav button').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-tab') === name);
+  });
+
+  if(group) _lastPaneIn[group] = name;
+
+  var r = RENDERERS[name];
+  if(r) r();
 
   window.scrollTo(0,0);
 }
 
+/* Clicking a nav group opens whichever pane in it was last used. */
+var _lastPaneIn = { bills:'new', jobs:'jobs', people:'customers', shop:'parts', money:'day' };
+
+function goGroup(group){
+  if(!GROUPS[group]) return;
+  goTab(_lastPaneIn[group] || GROUPS[group][0]);
+}
+
 /* Redraw whatever is currently on screen plus the always-visible header. */
+/* Redraw the always-visible header plus whichever pane is currently open.
+   Panes that are hidden redraw when they are next shown. */
 function refreshAll(){
   updateStats();
-  renderBills();
-  renderExpenses();
-  renderHistory();
-  renderJobs();
+  var open = document.querySelector('.pane.on');
+  if(!open) return;
+  var r = RENDERERS[open.id.replace('pane-','')];
+  if(r) r();
 }
 
 /* ══════════════════════════ STATS ══════════════════════════ */
@@ -272,12 +303,18 @@ function updateStats(){
     hp.style.color = profit >= 0 ? '#34d399' : '#f87171';
   }
 
-  // Live count of jobs still on the board, shown on the nav.
+  // Live counts on the nav: cars in the shop, and parts needing reordering.
   var open = gj().filter(function(j){ return j.status !== 'collected'; }).length;
   var dot = $('jobs-dot');
   if(dot){
     dot.textContent = open;
     dot.classList.toggle('show', open > 0);
+  }
+  var low = lowStock().length;
+  var sdot = $('stock-dot');
+  if(sdot){
+    sdot.textContent = low;
+    sdot.classList.toggle('show', low > 0);
   }
 
   return { total:total, labour:labour, unpaid:unpaid, avg:avg, expTotal:expTotal, profit:profit };
@@ -415,6 +452,9 @@ function collect(){
     id: _editingId || Date.now(),
     status: 'unpaid',
     currency: getCurr(),
+    customerId: _billCustomerId || '',
+    vehicleId:  _billVehicleId  || '',
+    jobId:      _billJobId      || '',
     labourTotal: labour,
     invNo:     val('inv-no'),
     date:      val('inv-date'),
@@ -433,12 +473,75 @@ function collect(){
 /* Set when an existing bill is loaded, so Save updates rather than duplicates. */
 var _editingId = null;
 
+/* Find the customer this bill is for, creating the record when the name was
+   typed straight into the form. Without this the People tab would only ever
+   fill up by hand, and the mechanic would have to enter everyone twice. */
+function linkBillCustomer(d){
+  if(d.customerId && byId(gCust(), d.customerId)) return d.customerId;
+  var name = String(d.custName || '').trim();
+  if(!name) return '';
+
+  var list = gCust();
+  var found = list.find(function(c){
+    return String(c.name).toLowerCase().trim() === name.toLowerCase();
+  });
+  if(found){
+    if(!found.phone && d.custPhone)   found.phone = d.custPhone;
+    if(!found.address && d.custAddr)  found.address = d.custAddr;
+    sCust(list);
+    return found.id;
+  }
+  var rec = {
+    id:newId(), name:name, phone:d.custPhone || '', phone2:'',
+    address:d.custAddr || '', notes:'', created:Date.now()
+  };
+  list.unshift(rec);
+  sCust(list);
+  return rec.id;
+}
+
+/* Same for the car, matched on plate. */
+function linkBillVehicle(d, customerId){
+  if(d.vehicleId && byId(gVeh(), d.vehicleId)) return d.vehicleId;
+  var plate = String(d.vehPlate || '').trim();
+  if(!plate) return '';
+
+  var list = gVeh();
+  var found = list.find(function(v){
+    return String(v.plate || '').toLowerCase().trim() === plate.toLowerCase();
+  });
+  if(found){
+    if(d.vehKm) found.km = d.vehKm;
+    if(customerId && !found.customerId) found.customerId = customerId;
+    sVeh(list);
+    return found.id;
+  }
+  var parts = String(d.vehModel || '').trim().split(/\s+/).filter(Boolean);
+  var year = '';
+  if(parts.length > 1 && /^(19|20)\d{2}$/.test(parts[parts.length - 1])) year = parts.pop();
+  var rec = {
+    id:newId(), customerId:customerId || '',
+    make:parts.shift() || '', model:parts.join(' '), year:year,
+    plate:plate, vin:'', km:d.vehKm || '', nextDate:'', nextKm:'', notes:'',
+    created:Date.now()
+  };
+  list.unshift(rec);
+  sVeh(list);
+  return rec.id;
+}
+
 function saveBill(){
   var d = collect();
   if(!d.custName && !d.invNo){
     toast('Add a customer name or invoice number first','err');
     return;
   }
+
+  d.customerId = linkBillCustomer(d);
+  d.vehicleId  = linkBillVehicle(d, d.customerId);
+  _billCustomerId = d.customerId;
+  _billVehicleId  = d.vehicleId;
+
   var bills = gb();
   var idx = bills.findIndex(function(b){ return b.id === d.id; });
   if(idx > -1){
@@ -449,6 +552,10 @@ function saveBill(){
   }
   if(!sb(bills)) return;
   _editingId = d.id;                 // keep editing the same bill
+
+  // Mark the job card this bill came from as invoiced.
+  if(_billJobId) linkJobToBill(_billJobId, d.id);
+
   updateStats();
   renderBills();
   toast(idx > -1 ? 'Bill updated ✓' : 'Bill saved ✓','ok');
@@ -477,6 +584,9 @@ function clearForm(){
       setVal('discount','0');
       setVal('tax-pct','0');
       _editingId = null;
+      _billJobId = null;
+      _billCustomerId = '';
+      _billVehicleId  = '';
       buildItems();
       setVal('inv-date', todayISO());
       autodue();
@@ -492,7 +602,10 @@ function loadBill(id){
   var b = gb().find(function(x){ return String(x.id) === String(id); });
   if(!b){ toast('Bill not found','err'); return; }
 
-  _editingId = b.id;
+  _editingId      = b.id;
+  _billCustomerId = b.customerId || '';
+  _billVehicleId  = b.vehicleId  || '';
+  _billJobId      = b.jobId      || null;
   setVal('inv-no',     b.invNo);
   setVal('inv-date',   b.date);
   setVal('inv-due',    b.due);
@@ -821,6 +934,8 @@ function renderBills(){
     var ageStr = age === null ? '' : age <= 0 ? 'Today' : age === 1 ? 'Yesterday' : age + 'd ago';
     var timeStr = fmTime(b.id);
     var when = ageStr ? (ageStr + (timeStr ? ' · ' + timeStr : '')) : timeStr;
+    var paid = paidSoFar(b);
+    var due  = paidRemaining(b);
 
     return '<div class="lcard '+st+'" data-id="'+esc(b.id)+'">'+
       '<div class="lcard-head">'+
@@ -835,8 +950,14 @@ function renderBills(){
         '<span>🚗 '+esc(b.vehModel || '—')+'</span>'+
         '<span>🔖 '+esc(b.vehPlate || '—')+'</span>'+
         (when ? '<span>🕐 '+esc(when)+'</span>' : '')+
+        (paid > 0.009 && due > 0.009
+          ? '<span style="color:var(--amb);font-weight:800">'+fmtV(paid)+' paid · '+fmtV(due)+' due</span>'
+          : '')+
       '</div>'+
       '<div class="lcard-acts">'+
+        (st !== 'paid'
+          ? '<button class="btn btn-red btn-sm" type="button" data-act="pay-bill">💵 Take Payment</button>'
+          : '')+
         '<button class="btn btn-ghost btn-sm" type="button" data-act="edit-bill">✏️ Edit</button>'+
         '<button class="btn btn-dark btn-sm" type="button" data-act="print-bill">🖨️ Print</button>'+
         '<button class="btn btn-wa btn-sm" type="button" data-act="wa-bill">💬 Send</button>'+
@@ -1028,324 +1149,6 @@ function renderExpenses(){
   }).join('');
 }
 
-/* ══════════════════════════ HISTORY ══════════════════════════
-
-   Customers and vehicles are derived from saved bills — there is no separate
-   store. (These functions were lost inside the <style> block of the previous
-   single-file build, which is why the History tab rendered nothing.)
-   ============================================================================ */
-
-var _histView = 'customers';
-
-function switchHistView(v){
-  _histView = v;
-  $$('#hist-segment button').forEach(function(b){
-    b.classList.toggle('on', b.getAttribute('data-view') === v);
-  });
-  setVal('hist-srch','');
-  syncClearButtons();
-  renderHistory();
-}
-
-function renderHistory(){
-  if(!$('hist-list')) return;
-  if(_histView === 'customers') renderCustomers();
-  else renderVehicles();
-}
-
-/* Jump to Saved Bills pre-filtered to this customer or plate. */
-function viewBillsFor(term){
-  setVal('srch', term);
-  syncClearButtons();
-  goTab('saved');
-}
-
-function renderCustomers(){
-  var q = (val('hist-srch') || '').toLowerCase();
-  var bills = gb();
-
-  var map = {};
-  bills.forEach(function(b){
-    var key = String(b.custName || 'Unknown').trim() || 'Unknown';
-    var lk = key.toLowerCase();
-    if(!map[lk]) map[lk] = { name:key, phone:'', addr:'', bills:[], total:0, lastDate:'' };
-    var m = map[lk];
-    m.bills.push(b);
-    m.total += cvt(b.total || 0, b.currency || 'USD');
-    if(!m.lastDate || String(b.date) > m.lastDate){
-      m.lastDate = b.date || '';
-      if(b.custPhone) m.phone = b.custPhone;
-      if(b.custAddr)  m.addr  = b.custAddr;
-    }
-  });
-
-  var list = Object.keys(map).map(function(k){ return map[k]; });
-  if(q){
-    list = list.filter(function(x){
-      return x.name.toLowerCase().indexOf(q) > -1 ||
-             String(x.phone).toLowerCase().indexOf(q) > -1;
-    });
-  }
-  list.sort(function(a,b){ return String(b.lastDate).localeCompare(String(a.lastDate)); });
-
-  $('hist-stats-bar').innerHTML = list.length
-    ? '<div class="summary-bar">'+
-        '<span><span class="hi">'+list.length+'</span> customer'+(list.length !== 1 ? 's' : '')+'</span>'+
-        '<span>Avg <span class="hi">'+(bills.length/(list.length||1)).toFixed(1)+'</span> visits each</span>'+
-      '</div>'
-    : '';
-
-  var el = $('hist-list');
-  if(!list.length){
-    el.innerHTML = emptyState(
-      '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>',
-      q ? 'No matching customers' : 'No customer history yet',
-      q ? 'Try a different name or phone' : 'Save bills to build your customer list'
-    );
-    return;
-  }
-
-  el.innerHTML = list.map(function(x){
-    var unpaid = x.bills.filter(function(b){ return getStatus(b) !== 'paid'; }).length;
-    return '<div class="lcard" data-term="'+esc(x.name)+'">'+
-      '<div class="lcard-flex">'+
-        '<div class="lcard-ico">👤</div>'+
-        '<div>'+
-          '<div class="lcard-head" style="margin-bottom:4px">'+
-            '<div class="lcard-name">'+esc(x.name)+'</div>'+
-            '<div class="lcard-amt">'+fmtBig(x.total)+'</div>'+
-          '</div>'+
-          (x.phone ? '<div class="lcard-desc">📞 '+esc(x.phone)+'</div>' : '')+
-          '<div class="lcard-meta">'+
-            '<span><span class="hi">'+x.bills.length+'</span> visit'+(x.bills.length !== 1 ? 's' : '')+'</span>'+
-            '<span>Last <span class="hi">'+(x.lastDate ? fd(x.lastDate) : '—')+'</span></span>'+
-            (unpaid > 0 ? '<span style="color:var(--amb);font-weight:800">'+unpaid+' unpaid</span>' : '')+
-          '</div>'+
-          '<div class="lcard-acts">'+
-            '<button class="btn btn-ghost btn-sm" type="button" data-act="view-bills">View Bills →</button>'+
-          '</div>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
-}
-
-function renderVehicles(){
-  var q = (val('hist-srch') || '').toLowerCase();
-  var bills = gb();
-
-  var map = {};
-  bills.forEach(function(b){
-    var plate = String(b.vehPlate || '').trim() || 'No Plate';
-    var lk = plate.toLowerCase();
-    if(!map[lk]) map[lk] = { plate:plate, model:'', custName:'', bills:[], total:0, lastDate:'', lastKm:'' };
-    var m = map[lk];
-    m.bills.push(b);
-    m.total += cvt(b.total || 0, b.currency || 'USD');
-    if(!m.lastDate || String(b.date) > m.lastDate){
-      m.lastDate = b.date || '';
-      if(b.vehModel) m.model    = b.vehModel;
-      if(b.custName) m.custName = b.custName;
-      if(b.vehKm)    m.lastKm   = b.vehKm;
-    }
-  });
-
-  var list = Object.keys(map).map(function(k){ return map[k]; });
-  if(q){
-    list = list.filter(function(x){
-      return x.plate.toLowerCase().indexOf(q) > -1 ||
-             String(x.model).toLowerCase().indexOf(q) > -1 ||
-             String(x.custName).toLowerCase().indexOf(q) > -1;
-    });
-  }
-  list.sort(function(a,b){ return String(b.lastDate).localeCompare(String(a.lastDate)); });
-
-  $('hist-stats-bar').innerHTML = list.length
-    ? '<div class="summary-bar">'+
-        '<span><span class="hi">'+list.length+'</span> vehicle'+(list.length !== 1 ? 's' : '')+'</span>'+
-        '<span>Avg <span class="hi">'+(bills.length/(list.length||1)).toFixed(1)+'</span> services each</span>'+
-      '</div>'
-    : '';
-
-  var el = $('hist-list');
-  if(!list.length){
-    el.innerHTML = emptyState(
-      '<path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h13l4 4v4a2 2 0 01-2 2h-1"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
-      q ? 'No matching vehicles' : 'No vehicle history yet',
-      q ? 'Try a different plate or model' : 'Save bills with vehicle info to build history'
-    );
-    return;
-  }
-
-  el.innerHTML = list.map(function(x){
-    return '<div class="lcard" data-term="'+esc(x.plate)+'">'+
-      '<div class="lcard-flex">'+
-        '<div class="lcard-ico">🚗</div>'+
-        '<div>'+
-          '<div class="lcard-head" style="margin-bottom:4px">'+
-            '<div class="lcard-name">'+esc(x.plate)+'</div>'+
-            '<div class="lcard-amt">'+fmtBig(x.total)+'</div>'+
-          '</div>'+
-          (x.model    ? '<div class="lcard-desc">'+esc(x.model)+'</div>' : '')+
-          (x.custName ? '<div class="lcard-meta" style="margin-bottom:4px"><span>Owner: <span class="hi">'+esc(x.custName)+'</span></span></div>' : '')+
-          '<div class="lcard-meta">'+
-            '<span><span class="hi">'+x.bills.length+'</span> service'+(x.bills.length !== 1 ? 's' : '')+'</span>'+
-            '<span>Last <span class="hi">'+(x.lastDate ? fd(x.lastDate) : '—')+'</span></span>'+
-            (x.lastKm ? '<span>📍 <span class="hi">'+esc(x.lastKm)+' km</span></span>' : '')+
-          '</div>'+
-          '<div class="lcard-acts">'+
-            '<button class="btn btn-ghost btn-sm" type="button" data-act="view-bills">View Bills →</button>'+
-          '</div>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
-}
-
-/* ══════════════════════════ JOB BOARD ══════════════════════════ */
-
-function toggleAddJob(force){
-  var f = $('add-job-form');
-  var b = $('add-job-btn');
-  var open = (typeof force === 'boolean') ? force : !f.classList.contains('open');
-  f.classList.toggle('open', open);
-  b.innerHTML = open
-    ? '✕ Cancel'
-    : '<svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add New Job';
-  if(open) $('j-cust').focus();
-}
-
-function saveJob(){
-  var cust = val('j-cust');
-  var job  = val('j-job');
-  if(!cust){ toast('Enter the customer name','err'); return; }
-  if(!job){  toast('Enter what needs doing','err'); return; }
-
-  var jobs = gj();
-  jobs.unshift({
-    id: Date.now(),
-    custName: cust,
-    phone:    val('j-phone'),
-    vehModel: val('j-model'),
-    vehPlate: val('j-plate'),
-    job:      job,
-    notes:    val('j-notes'),
-    status:  'waiting',
-    created:  Date.now()
-  });
-  if(!sj(jobs)) return;
-
-  ['j-cust','j-phone','j-model','j-plate','j-job','j-notes'].forEach(function(id){ setVal(id,''); });
-  toggleAddJob(false);
-  renderJobs();
-  updateStats();
-  toast('Job added to the board ✓','ok');
-}
-
-function advanceJob(id){
-  var jobs = gj();
-  var idx = jobs.findIndex(function(j){ return String(j.id) === String(id); });
-  if(idx === -1) return;
-  var ni = J_CYCLE.indexOf(jobs[idx].status) + 1;
-  if(ni <= 0 || ni >= J_CYCLE.length) return;
-  jobs[idx].status = J_CYCLE[ni];
-  if(!sj(jobs)) return;
-  renderJobs();
-  updateStats();
-  toast('Status: ' + J_LABEL[J_CYCLE[ni]],'ok');
-}
-
-function delJob(id){
-  confirmSheet({
-    icon:'🗑️', title:'Remove this job?', msg:'It will be taken off the board.',
-    confirmText:'Remove', danger:true,
-    onConfirm: function(){
-      sj(gj().filter(function(j){ return String(j.id) !== String(id); }));
-      renderJobs();
-      updateStats();
-      toast('Job removed','info');
-    }
-  });
-}
-
-function jobToInvoice(id){
-  var j = gj().find(function(x){ return String(x.id) === String(id); });
-  if(!j) return;
-  _editingId = null;
-  setVal('cust-name',  j.custName);
-  setVal('cust-phone', j.phone);
-  setVal('veh-model',  j.vehModel);
-  setVal('veh-plate',  j.vehPlate);
-  setVal('cust-addr','');
-  setVal('veh-km','');
-  setVal('inv-notes','');
-  setVal('discount','0');
-  setVal('tax-pct','0');
-  buildItems();
-  var first = document.querySelector('#items .i-d');
-  if(first && j.job) first.value = j.job;
-  setVal('inv-date', todayISO());
-  autodue();
-  autoInvNo();
-  recalc();
-  goTab('new');
-  toast('Bill started from this job','info');
-}
-
-function renderJobs(){
-  var el = $('jobs-list');
-  if(!el) return;
-
-  var jobs = gj();
-  var showCollected = $('show-collected') && $('show-collected').checked;
-  var shown = showCollected ? jobs : jobs.filter(function(j){ return j.status !== 'collected'; });
-
-  ['waiting','in_progress','done','collected'].forEach(function(s,i){
-    var box = $(['j-wait','j-wip','j-done','j-coll'][i]);
-    if(box) box.textContent = jobs.filter(function(j){ return j.status === s; }).length;
-  });
-
-  if(!shown.length){
-    el.innerHTML = emptyState(
-      '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>',
-      showCollected ? 'No jobs yet' : 'No active jobs',
-      showCollected ? 'Tap Add New Job to start' : 'All caught up. Tick "Show collected" to see finished jobs.'
-    );
-    return;
-  }
-
-  el.innerHTML = shown.map(function(j){
-    var mins = Math.floor((Date.now() - (j.created || j.id)) / 60000);
-    var age = mins < 60 ? mins + 'm ago'
-            : mins < 1440 ? Math.floor(mins/60) + 'h ago'
-            : Math.floor(mins/1440) + 'd ago';
-    var next = J_NEXT_BTN[j.status];
-
-    return '<div class="lcard '+j.status+'" data-id="'+esc(j.id)+'">'+
-      '<div class="lcard-head">'+
-        '<div>'+
-          '<div class="lcard-name">'+esc(j.custName)+'</div>'+
-          '<span class="badge '+j.status+'" data-act="advance-job">'+J_LABEL[j.status]+'</span>'+
-        '</div>'+
-      '</div>'+
-      '<div class="lcard-desc" style="margin-top:8px">'+esc(j.job)+'</div>'+
-      '<div class="lcard-meta">'+
-        ((j.vehModel || j.vehPlate)
-          ? '<span>🚗 '+esc(j.vehModel || '')+(j.vehPlate ? ' — '+esc(j.vehPlate) : '')+'</span>' : '')+
-        (j.phone ? '<span>📞 '+esc(j.phone)+'</span>' : '')+
-        '<span>🕐 '+age+'</span>'+
-        (j.notes ? '<span>📝 '+esc(j.notes)+'</span>' : '')+
-      '</div>'+
-      '<div class="lcard-acts">'+
-        (next ? '<button class="btn btn-red btn-sm" type="button" data-act="advance-job">'+next+'</button>' : '')+
-        ((j.status === 'in_progress' || j.status === 'done')
-          ? '<button class="btn btn-dark btn-sm" type="button" data-act="job-invoice">Create Bill →</button>' : '')+
-        '<button class="btn btn-danger-ghost btn-sm btn-icon" type="button" data-act="del-job" aria-label="Remove">✕</button>'+
-      '</div>'+
-    '</div>';
-  }).join('');
-}
-
 /* ══════════════════════════ EVENT WIRING ══════════════════════════
 
    Lists are rendered as HTML strings, so their buttons are handled by a
@@ -1365,7 +1168,15 @@ function wireEvents(){
   /* ── bottom nav ── */
   $('bottom-nav').addEventListener('click', function(e){
     var btn = e.target.closest('.nav-btn');
-    if(btn) goTab(btn.getAttribute('data-tab'));
+    if(btn) goGroup(btn.getAttribute('data-group'));
+  });
+
+  // Sub-tabs inside a group (New/Saved, Customers/Vehicles, and so on).
+  $$('.subnav').forEach(function(bar){
+    bar.addEventListener('click', function(e){
+      var btn = e.target.closest('button[data-tab]');
+      if(btn) goTab(btn.getAttribute('data-tab'));
+    });
   });
 
   /* ── currency ── */
@@ -1421,6 +1232,7 @@ function wireEvents(){
     var id = card.getAttribute('data-id');
     switch(btn.getAttribute('data-act')){
       case 'toggle-status': toggleStatus(id); break;
+      case 'pay-bill':      paymentSheet(id);  break;
       case 'edit-bill':     loadBill(id);     break;
       case 'print-bill':    printSaved(id);   break;
       case 'wa-bill':       waSaved(id);      break;
@@ -1455,36 +1267,11 @@ function wireEvents(){
     if(card) delExpense(card.getAttribute('data-id'));
   });
 
-  /* ── history ── */
-  $('hist-segment').addEventListener('click', function(e){
-    var btn = e.target.closest('button[data-view]');
-    if(btn) switchHistView(btn.getAttribute('data-view'));
-  });
-  $('hist-srch').addEventListener('input', function(){ syncClearButtons(); renderHistory(); });
-  $('hist-list').addEventListener('click', function(e){
-    var btn = e.target.closest('[data-act="view-bills"]');
-    if(!btn) return;
-    var card = btn.closest('[data-term]');
-    if(card) viewBillsFor(card.getAttribute('data-term'));
-  });
-
-  /* ── jobs ── */
-  $('add-job-btn').addEventListener('click', function(){ toggleAddJob(); });
-  $('cancel-job-btn').addEventListener('click', function(){ toggleAddJob(false); });
-  $('save-job-btn').addEventListener('click', saveJob);
-  $('show-collected').addEventListener('change', renderJobs);
-  $('jobs-list').addEventListener('click', function(e){
-    var btn = e.target.closest('[data-act]');
-    if(!btn) return;
-    var card = btn.closest('[data-id]');
-    if(!card) return;
-    var id = card.getAttribute('data-id');
-    switch(btn.getAttribute('data-act')){
-      case 'advance-job': advanceJob(id);   break;
-      case 'job-invoice': jobToInvoice(id); break;
-      case 'del-job':     delJob(id);       break;
-    }
-  });
+  /* ── feature modules wire their own panes ── */
+  wirePeople();
+  wireShop();
+  wireJobs();
+  wireMoney();
 
   /* ── search clear buttons ── */
   $$('.search-clear').forEach(function(btn){
@@ -1493,8 +1280,8 @@ function wireEvents(){
       if(!input) return;
       input.value = '';
       syncClearButtons();
-      if(input.id === 'srch') renderBills();
-      else renderHistory();
+      // Let the owning module reset its own filter state and redraw.
+      input.dispatchEvent(new Event('input', { bubbles:true }));
     });
   });
 
@@ -1507,18 +1294,29 @@ function wireEvents(){
     if(cb) setTimeout(cb, 200);
   });
   $('wa-close-btn').addEventListener('click', function(){ closeSheet($('wa-sheet')); });
+
+  $('form-sheet-cancel').addEventListener('click', function(){ closeSheet($('form-sheet')); });
+  $('form-sheet-ok').addEventListener('click', function(){
+    var cb = _formCb;
+    // A callback returning false means validation failed: keep the sheet open.
+    if(cb && cb() === false) return;
+    closeSheet($('form-sheet'));
+    _formCb = null;
+  });
+  $('info-sheet-close').addEventListener('click', function(){ closeSheet($('info-sheet')); });
+  $('info-sheet-body').addEventListener('click', function(e){ if(_infoClick) _infoClick(e); });
   $('wa-open-btn').addEventListener('click', function(){
     setTimeout(function(){ closeSheet($('wa-sheet')); }, 400);
   });
 
   // Tapping the dimmed backdrop dismisses either sheet.
-  ['confirm-sheet','wa-sheet'].forEach(function(id){
+  ['confirm-sheet','wa-sheet','form-sheet','info-sheet'].forEach(function(id){
     $(id).addEventListener('click', function(e){ if(e.target === this) closeSheet(this); });
   });
 
   document.addEventListener('keydown', function(e){
     if(e.key !== 'Escape') return;
-    ['confirm-sheet','wa-sheet'].forEach(function(id){
+    ['confirm-sheet','wa-sheet','form-sheet','info-sheet'].forEach(function(id){
       var el = $(id);
       if(el.classList.contains('open')) closeSheet(el);
     });
@@ -1612,6 +1410,9 @@ function init(){
   }
   updateRateDisplay();
 
+  // Roll the old bills-only data into real customer and vehicle records.
+  var mig = migrateIfNeeded();
+
   wireEvents();
   initKbdLabels();
 
@@ -1631,6 +1432,11 @@ function init(){
 
   registerSW();
   wireInstallPrompt();
+
+  if(mig.ran && (mig.customers || mig.vehicles)){
+    toast('Built ' + mig.customers + ' customers and ' + mig.vehicles +
+          ' vehicles from your old bills', 'ok', 6000);
+  }
 }
 
 if(document.readyState === 'loading'){
@@ -1638,3 +1444,119 @@ if(document.readyState === 'loading'){
 }else{
   init();
 }
+
+/* ══════════════════════════ SHARED FORM + SHEET HELPERS ══════════════════════════
+
+   Every module builds its forms from these rather than hand-writing markup, so
+   a field looks and behaves the same wherever it appears.
+   ============================================================================ */
+
+/* One labelled field. `cls` carries the responsive span classes (m-full,
+   d-wide, d-full) documented in style.css. */
+function fieldText(id, label, value, placeholder, cls, type, inputmode){
+  return '<div class="field '+(cls || '')+'">'+
+    (label ? '<label for="'+id+'">'+esc(label)+'</label>' : '')+
+    '<input type="'+(type || 'text')+'" id="'+id+'"'+
+      ' value="'+esc(value == null ? '' : value)+'"'+
+      ' placeholder="'+esc(placeholder || '')+'"'+
+      (inputmode ? ' inputmode="'+inputmode+'"' : '')+
+      ' autocomplete="off">'+
+  '</div>';
+}
+
+/* A bottom sheet containing a form. `onConfirm` returning false keeps it open,
+   which is how validation failures report back. */
+var _formCb = null;
+
+function formSheet(opts){
+  var ov = $('form-sheet');
+  $('form-sheet-ico').textContent   = opts.icon || '✏️';
+  $('form-sheet-title').textContent = opts.title || '';
+  var sub = $('form-sheet-sub');
+  sub.textContent = opts.sub || '';
+  sub.classList.toggle('hidden', !opts.sub);
+  $('form-sheet-body').innerHTML = opts.body || '';
+  $('form-sheet-ok').textContent = opts.confirmText || 'Save';
+
+  _formCb = opts.onConfirm || null;
+  openSheet(ov);
+
+  // Let the caller wire up anything inside the body it just rendered.
+  if(opts.onOpen) opts.onOpen();
+
+  // Focus the first real input so a keyboard user can start typing at once.
+  var first = $('form-sheet-body').querySelector('input:not([type=hidden]),select,textarea');
+  if(first && window.matchMedia('(min-width:1024px)').matches){
+    setTimeout(function(){ first.focus(); }, 260);
+  }
+}
+
+/* A read-only sheet: history lists, summaries. */
+var _infoClick = null;
+
+function infoSheet(opts){
+  var ov = $('info-sheet');
+  $('info-sheet-ico').textContent   = opts.icon || 'ℹ️';
+  $('info-sheet-title').textContent = opts.title || '';
+  var sub = $('info-sheet-sub');
+  sub.textContent = opts.sub || '';
+  sub.classList.toggle('hidden', !opts.sub);
+  $('info-sheet-body').innerHTML = opts.body || '';
+  _infoClick = opts.onClick || null;
+  openSheet(ov);
+}
+
+/* ══════════════════════════ STARTING A BILL FROM ELSEWHERE ══════════════════════════
+
+   Customers, vehicles and job cards all hand off to the New Bill form through
+   this one function, so prefilling behaves identically wherever it starts.
+   ============================================================================ */
+
+var _billJobId = null;   // set when the bill came from a job card
+
+function startBillFrom(o){
+  o = o || {};
+  var c  = o.customer;
+  var v  = o.vehicle;
+  var fb = o.fallback || {};
+
+  _editingId = null;
+  _billJobId = o.jobId || null;
+
+  setVal('cust-name',  c ? c.name    : (fb.custName || ''));
+  setVal('cust-phone', c ? c.phone   : (fb.phone    || ''));
+  setVal('cust-addr',  c ? c.address : '');
+  setVal('veh-model',  v ? vehicleLabel(v) : (fb.vehModel || ''));
+  setVal('veh-plate',  v ? (v.plate || '') : (fb.vehPlate || ''));
+  // A job card carries the mileage read when the car came in, which is
+  // fresher than whatever is stored against the vehicle.
+  setVal('veh-km',     fb.km || (v ? (v.km || '') : ''));
+  setVal('inv-notes',  o.notes || '');
+  setVal('discount','0');
+  setVal('tax-pct','0');
+
+  _billCustomerId = c ? c.id : '';
+  _billVehicleId  = v ? v.id : '';
+
+  var items = o.items || [];
+  buildItems(Math.max(startItems(), items.length));
+  var cards = $$('#items .item-card');
+  items.forEach(function(it,i){
+    var card = cards[i];
+    if(!card) return;
+    card.querySelector('.i-d').value = it.desc  || '';
+    card.querySelector('.i-q').value = it.qty   || '';
+    card.querySelector('.i-p').value = it.price || '';
+    if(it.type === 'labour') toggleType(card.querySelector('.type-toggle'));
+  });
+
+  setVal('inv-date', todayISO());
+  autodue();
+  autoInvNo();
+  recalc();
+  goTab('new');
+  toast('Bill started','info');
+}
+
+var _billCustomerId = '';
+var _billVehicleId  = '';

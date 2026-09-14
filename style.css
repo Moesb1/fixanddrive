@@ -1223,3 +1223,311 @@ kbd{
 @media screen and (min-width:1600px){
   .pane,#pane-new{max-width:1320px}
 }
+
+/* ==========================================================================
+   SUB-TABS
+   A nav group that holds two panes shows this bar under the page title.
+   ========================================================================== */
+
+.subnav{
+  display:flex; gap:4px; padding:4px;
+  background:var(--card); border:1.5px solid var(--brd);
+  border-radius:var(--r12); margin-bottom:16px;
+}
+.subnav button{
+  flex:1; min-height:46px; border:none; border-radius:9px;
+  background:transparent; color:var(--sub);
+  font-size:15px; font-weight:700; cursor:pointer;
+}
+.subnav button.on{background:var(--ink2); color:#fff}
+.subnav button:active{transform:scale(.98)}
+
+/* ==========================================================================
+   SHEET HEADER (form + info sheets)
+   ========================================================================== */
+
+.sheet-head{display:flex; align-items:center; gap:14px; margin-bottom:18px}
+.sheet-head .sheet-ico{margin-bottom:0; width:48px; height:48px; font-size:22px}
+.sheet-head .sheet-title{margin-bottom:2px}
+.sheet-sub{font-size:14.5px; color:var(--mute); font-weight:600}
+#form-sheet-body,#info-sheet-body{margin-bottom:20px}
+
+/* Forms inside a sheet keep the same field styling as the main panes. */
+#form-sheet-body select,
+#form-sheet-body input{width:100%}
+#form-sheet-body .field input,
+#form-sheet-body .field select{
+  min-height:var(--tap);
+  border:2px solid var(--brd); border-radius:var(--r12);
+  padding:13px 14px; font-size:16px; font-weight:600;
+  background:#fafbfc; color:var(--ink); outline:none;
+}
+#form-sheet-body .field input:focus,
+#form-sheet-body .field select:focus{
+  border-color:var(--red); background:#fff;
+  box-shadow:0 0 0 4px rgba(193,39,45,.12);
+}
+#form-sheet-body select{
+  -webkit-appearance:none; appearance:none;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%2364748b' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 15px center;
+  padding-right:42px;
+}
+#form-sheet-body select:disabled{background-color:var(--bg); color:var(--mute)}
+
+/* The manual name/car fields only matter when no customer record is picked. */
+.job-manual{display:none; margin-top:14px; padding-top:14px; border-top:1.5px dashed var(--brd)}
+.job-manual.show{display:block}
+
+/* ==========================================================================
+   LIST CARD EXTRAS
+   ========================================================================== */
+
+.lcard-note{
+  font-size:14px; color:var(--sub); font-style:italic;
+  background:var(--bg); border-radius:9px;
+  padding:8px 11px; margin:8px 0 10px;
+}
+
+.plate{
+  display:inline-block;
+  background:var(--ink2); color:#fff;
+  font-size:12.5px; font-weight:800; letter-spacing:1px;
+  padding:3px 8px; border-radius:5px;
+  vertical-align:middle;
+}
+
+/* Stock level chip on a part row. */
+.stock-pill{
+  min-width:52px; text-align:center;
+  padding:7px 12px; border-radius:10px;
+  background:var(--grn-s); color:var(--grn);
+  border:2px solid var(--grn-b);
+  font-size:18px; font-weight:800; flex-shrink:0;
+}
+.stock-pill.low{background:var(--amb-s); color:var(--amb); border-color:var(--amb-b)}
+.stock-pill.out{background:var(--red-s); color:var(--red); border-color:var(--red-b)}
+
+.stock-now{
+  background:var(--bg); border-radius:var(--r12);
+  padding:14px; margin-bottom:16px;
+  font-size:16px; color:var(--sub);
+}
+.stock-now strong{font-size:22px; color:var(--ink); margin-left:6px}
+
+/* ==========================================================================
+   JOB CARDS
+   ========================================================================== */
+
+.jobcard .lcard-head{margin-bottom:8px}
+
+.jmeta{
+  display:flex; flex-wrap:wrap; gap:6px 14px;
+  font-size:14px; color:var(--mute); margin-bottom:12px;
+}
+.jmeta .hi{color:var(--ink); font-weight:700}
+
+/* Reported / Found / Notes blocks. */
+.jsec{
+  font-size:15px; color:var(--ink3);
+  padding:9px 12px; margin-bottom:7px;
+  background:var(--bg); border-radius:9px;
+  line-height:1.45;
+}
+.jsec-l{
+  display:block;
+  font-size:10.5px; font-weight:800; letter-spacing:1.2px;
+  color:var(--mute); text-transform:uppercase; margin-bottom:3px;
+}
+
+/* Parts and labour already booked to the card. */
+.jlines{
+  border:1.5px solid var(--brd); border-radius:var(--r12);
+  overflow:hidden; margin:12px 0;
+}
+.jline{
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px;
+  border-bottom:1px solid var(--bg);
+  font-size:15px;
+}
+.jline:last-child{border-bottom:none}
+.jline.labour{background:var(--amb-s)}
+.jline-q{
+  min-width:44px; font-weight:800; color:var(--sub);
+  font-size:14px; flex-shrink:0;
+}
+.jline-d{flex:1; min-width:0; color:var(--ink); font-weight:600}
+.jline-a{font-weight:800; color:var(--ink); white-space:nowrap}
+.jline-x{
+  width:34px; height:34px; flex-shrink:0;
+  border:none; background:transparent; color:var(--mute);
+  font-size:15px; border-radius:8px; cursor:pointer;
+}
+.jline-x:active{background:var(--red-s); color:var(--red)}
+.jline.empty-line,.pay-row.empty-line{
+  color:var(--mute); font-size:14.5px; justify-content:center;
+  padding:16px 12px; text-align:center; display:block;
+}
+
+.jtotals{
+  display:flex; flex-wrap:wrap; gap:8px 18px;
+  align-items:center; margin-bottom:12px;
+  font-size:14.5px; color:var(--sub);
+}
+.jtotals strong{color:var(--ink); font-weight:800}
+.jtotals .jtotal{
+  margin-left:auto; font-size:16px; color:var(--ink);
+}
+.jtotals .jtotal strong{font-size:19px}
+
+/* ==========================================================================
+   MONEY — DAY VIEW
+   ========================================================================== */
+
+.day-nav{
+  display:flex; align-items:center; gap:10px; margin-bottom:16px;
+}
+.day-label{
+  flex:1; text-align:center;
+  font-size:17px; font-weight:800; color:var(--ink);
+}
+.day-nav .btn-icon{font-size:22px; font-weight:800}
+.day-nav button:disabled{opacity:.35; pointer-events:none}
+
+.day-card{padding-top:18px}
+.day-row{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 0; border-bottom:1px solid var(--bg);
+  font-size:16px;
+}
+.day-row:last-of-type{border-bottom:none}
+.day-row.zero{opacity:.45}
+.day-row-l{font-weight:600; color:var(--sub)}
+.day-row-v{font-weight:800; color:var(--ink)}
+.day-row-v.red{color:var(--red)}
+.day-row.total{border-top:2px solid var(--brd); border-bottom:none; margin-top:4px}
+.day-row.total .day-row-l,.day-row.total .day-row-v{color:var(--ink); font-weight:800}
+
+.day-net{
+  display:flex; justify-content:space-between; align-items:center;
+  margin:14px -16px -16px;
+  padding:18px 20px;
+  border-radius:0 0 var(--r16) var(--r16);
+  font-size:15px; font-weight:700; letter-spacing:.4px;
+  text-transform:uppercase;
+}
+.day-net strong{font-size:26px; letter-spacing:-.5px; text-transform:none}
+.day-net.pos{background:var(--ink2); color:#fff}
+.day-net.pos strong{color:#34d399}
+.day-net.neg{background:var(--red); color:#fff}
+
+.pay-row{
+  display:flex; align-items:center; gap:12px;
+  padding:12px 0; border-bottom:1px solid var(--bg);
+}
+.pay-row:last-child{border-bottom:none}
+.pay-ico{font-size:20px; flex-shrink:0; width:26px; text-align:center}
+.pay-body{flex:1; min-width:0; display:flex; flex-direction:column}
+.pay-who{font-size:15.5px; font-weight:700; color:var(--ink)}
+.pay-sub{font-size:13px; color:var(--mute)}
+.pay-amt{font-size:16px; font-weight:800; color:var(--ink); white-space:nowrap}
+.pay-amt.red{color:var(--red)}
+
+/* Payment method picker. */
+.method-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.method-btn{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:6px; min-height:74px;
+  border:2px solid var(--brd2); border-radius:var(--r12);
+  background:#fff; color:var(--sub);
+  font-size:14.5px; font-weight:700; cursor:pointer;
+}
+.method-btn .method-ico{font-size:22px; line-height:1}
+.method-btn.on{
+  background:var(--ink2); color:#fff; border-color:var(--ink2);
+}
+.method-btn:active{transform:scale(.97)}
+
+.due-banner{
+  background:var(--amb-s); border:2px solid var(--amb-b);
+  border-radius:var(--r12); padding:13px 15px; margin-bottom:16px;
+  font-size:15px; color:var(--amb); font-weight:600;
+}
+.due-banner strong{font-size:20px; font-weight:800}
+.due-banner span{color:var(--sub); font-weight:600}
+
+/* ==========================================================================
+   PURCHASE (BOOK IN STOCK) SHEET
+   ========================================================================== */
+
+.buy-head{
+  display:grid; grid-template-columns:minmax(0,1fr) 74px 90px; gap:8px;
+  padding:0 2px 8px;
+  font-size:10.5px; font-weight:800; letter-spacing:1.1px;
+  color:var(--mute); text-transform:uppercase;
+  border-bottom:2px solid var(--brd);
+}
+.buy-head span:not(:first-child){text-align:center}
+.buy-list{max-height:44vh; overflow-y:auto; margin-top:8px}
+.buy-row{
+  display:grid; grid-template-columns:minmax(0,1fr) 74px 90px; gap:8px;
+  align-items:center; padding:7px 0;
+  border-bottom:1px solid var(--bg);
+}
+.buy-name{font-size:14.5px; font-weight:600; color:var(--ink); min-width:0}
+.buy-stock{display:block; font-size:12px; color:var(--mute); font-weight:500}
+.buy-qty,.buy-cost{
+  min-height:42px; width:100%;
+  border:2px solid var(--brd); border-radius:9px;
+  padding:9px 8px; font-size:15px; font-weight:700;
+  text-align:center; background:#fff; color:var(--ink); outline:none;
+}
+.buy-qty:focus,.buy-cost:focus{border-color:var(--red)}
+
+/* ==========================================================================
+   HISTORY ROWS (info sheets)
+   ========================================================================== */
+
+.hist-row{
+  padding:12px 0; border-bottom:1px solid var(--brd);
+}
+.hist-row:last-child{border-bottom:none}
+.hist-row-top{
+  display:flex; justify-content:space-between; align-items:center;
+  gap:12px; font-size:15.5px; color:var(--ink); margin-bottom:3px;
+}
+.hist-row-sub{font-size:13.5px; color:var(--mute); line-height:1.5}
+
+/* Amber count badge on the Shop nav item. */
+.nav-dot.amber{background:var(--amb)}
+
+/* ==========================================================================
+   LAPTOP ADJUSTMENTS FOR THE NEW SCREENS
+   ========================================================================== */
+
+@media screen and (min-width:1024px){
+  .subnav{width:400px; margin-bottom:20px}
+
+  .method-grid{grid-template-columns:repeat(4,1fr)}
+
+  .sheet{max-width:680px}
+  #form-sheet .sheet{max-width:760px}
+
+  .day-nav{max-width:520px}
+  .day-net{margin-left:-24px; margin-right:-24px; padding-left:28px; padding-right:28px}
+
+  .buy-head,.buy-row{grid-template-columns:minmax(0,1fr) 100px 120px; gap:12px}
+  .buy-list{max-height:38vh}
+
+  /* Job cards carry far more than a bill row, so they keep the stacked
+     layout and only pull the actions up beside the heading. */
+  #jobs-list .lcard{
+    display:block;
+  }
+  #jobs-list .lcard-head{display:flex; margin-bottom:10px}
+  #jobs-list .lcard-acts{justify-content:flex-start; margin-top:4px}
+
+  .jsec{font-size:15.5px}
+  .jlines{max-width:none}
+}
