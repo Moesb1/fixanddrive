@@ -28,7 +28,7 @@ function editCustomer(id){
   var c = id ? byId(gCust(), id) : null;
   formSheet({
     title: c ? 'Edit Customer' : 'New Customer',
-    icon: '👤',
+    icon:'user',
     body: custForm(c),
     confirmText: c ? 'Save Changes' : 'Add Customer',
     onConfirm: function(){
@@ -59,7 +59,7 @@ function delCustomer(id){
   var vs = vehiclesOf(id).length;
   var bs = billsOf(id).length;
   confirmSheet({
-    icon:'🗑️', title:'Delete ' + c.name + '?', danger:true, confirmText:'Delete',
+    icon:'trash', title:'Delete ' + c.name + '?', danger:true, confirmText:'Delete',
     msg:'Their ' + vs + ' vehicle' + (vs !== 1 ? 's' : '') + ' will also be removed. ' +
         (bs ? 'The ' + bs + ' bill' + (bs !== 1 ? 's' : '') + ' already saved are kept.' : ''),
     onConfirm: function(){
@@ -120,27 +120,27 @@ function renderCustomers(){
 
     return '<div class="lcard" data-id="'+esc(c.id)+'">'+
       '<div class="lcard-flex">'+
-        '<div class="lcard-ico">👤</div>'+
+        '<div class="lcard-ico">'+ic('user',18)+'</div>'+
         '<div>'+
           '<div class="lcard-head" style="margin-bottom:4px">'+
             '<div class="lcard-name">'+esc(c.name)+'</div>'+
             '<div class="lcard-amt">'+fmtBig(spent)+'</div>'+
           '</div>'+
-          (c.phone ? '<div class="lcard-desc">📞 '+esc(c.phone)+(c.phone2 ? ' · '+esc(c.phone2) : '')+'</div>' : '')+
+          (c.phone ? '<div class="lcard-desc">'+ic('phone',15)+esc(c.phone)+(c.phone2 ? ' · '+esc(c.phone2) : '')+'</div>' : '')+
           '<div class="lcard-meta">'+
             '<span><span class="hi">'+vs.length+'</span> vehicle'+(vs.length !== 1 ? 's' : '')+'</span>'+
             '<span><span class="hi">'+bs.length+'</span> bill'+(bs.length !== 1 ? 's' : '')+'</span>'+
             (last ? '<span>Last <span class="hi">'+fd(last)+'</span></span>' : '')+
-            (c.address ? '<span>📍 '+esc(c.address)+'</span>' : '')+
+            (c.address ? '<span>'+ic('pin',14)+esc(c.address)+'</span>' : '')+
             (unpaid > 0 ? '<span style="color:var(--amb);font-weight:800">'+fmtBig(unpaid)+' unpaid</span>' : '')+
           '</div>'+
           (c.notes ? '<div class="lcard-note">'+esc(c.notes)+'</div>' : '')+
           '<div class="lcard-acts">'+
-            '<button class="btn btn-red btn-sm" type="button" data-act="cust-bill">＋ Bill</button>'+
-            '<button class="btn btn-dark btn-sm" type="button" data-act="cust-vehicle">🚗 Add Car</button>'+
-            '<button class="btn btn-ghost btn-sm" type="button" data-act="cust-cars">Cars &amp; History →</button>'+
-            '<button class="btn btn-ghost btn-sm btn-icon" type="button" data-act="cust-edit" aria-label="Edit">✏️</button>'+
-            '<button class="btn btn-danger-ghost btn-sm btn-icon" type="button" data-act="cust-del" aria-label="Delete">✕</button>'+
+            '<button class="btn btn-red btn-sm" type="button" data-act="cust-bill">'+ic('plus',15)+'Bill</button>'+
+            '<button class="btn btn-ghost btn-sm" type="button" data-act="cust-vehicle">'+ic('car',15)+'Add Car</button>'+
+            '<button class="btn btn-ghost btn-sm" type="button" data-act="cust-cars">History'+ic('arrowR',15)+'</button>'+
+            '<button class="btn btn-ghost btn-sm btn-icon" type="button" data-act="cust-edit" aria-label="Edit">'+ic('pencil',15)+'</button>'+
+            '<button class="btn btn-danger-ghost btn-sm btn-icon" type="button" data-act="cust-del" aria-label="Delete">'+ic('trash',15)+'</button>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -180,7 +180,7 @@ function editVehicle(id, presetCustomerId){
 
   formSheet({
     title: id ? 'Edit Vehicle' : 'New Vehicle',
-    icon: '🚗',
+    icon:'car',
     body: vehForm(v, locked),
     confirmText: id ? 'Save Changes' : 'Add Vehicle',
     onConfirm: function(){
@@ -216,7 +216,7 @@ function delVehicle(id){
   var v = byId(gVeh(), id);
   if(!v) return;
   confirmSheet({
-    icon:'🗑️', title:'Delete this vehicle?', danger:true, confirmText:'Delete',
+    icon:'trash', title:'Delete this vehicle?', danger:true, confirmText:'Delete',
     msg: vehicleLabel(v) + (v.plate ? ' (' + v.plate + ')' : '') + ' will be removed. Bills already saved are kept.',
     onConfirm: function(){
       sVeh(gVeh().filter(function(x){ return String(x.id) !== String(id); }));
@@ -287,7 +287,7 @@ function renderVehicles(){
 
     return '<div class="lcard'+(due.due ? ' overdue' : '')+'" data-id="'+esc(v.id)+'">'+
       '<div class="lcard-flex">'+
-        '<div class="lcard-ico">🚗</div>'+
+        '<div class="lcard-ico">'+ic('car',18)+'</div>'+
         '<div>'+
           '<div class="lcard-head" style="margin-bottom:4px">'+
             '<div class="lcard-name">'+esc(vehicleLabel(v))+
@@ -296,20 +296,20 @@ function renderVehicles(){
             '</div>'+
             '<div class="lcard-amt">'+fmtBig(spent)+'</div>'+
           '</div>'+
-          (owner ? '<div class="lcard-desc">👤 '+esc(owner)+'</div>' : '<div class="lcard-desc" style="color:var(--mute)">No owner set</div>')+
+          (owner ? '<div class="lcard-desc">'+ic('user',15)+esc(owner)+'</div>' : '<div class="lcard-desc" style="color:var(--mute)">No owner set</div>')+
           '<div class="lcard-meta">'+
-            (v.km  ? '<span>📍 <span class="hi">'+esc(v.km)+' km</span></span>' : '')+
+            (v.km  ? '<span>'+ic('gauge',14)+'<span class="hi">'+esc(v.km)+' km</span></span>' : '')+
             (v.vin ? '<span>VIN <span class="hi">'+esc(v.vin)+'</span></span>' : '')+
             '<span><span class="hi">'+bs.length+'</span> repair'+(bs.length !== 1 ? 's' : '')+'</span>'+
             (last ? '<span>Last <span class="hi">'+fd(last)+'</span></span>' : '')+
-            (v.nextDate ? '<span>Next <span class="hi">'+fd(v.nextDate)+'</span></span>' : '')+
+            (v.nextDate ? '<span>'+ic('calendar',14)+'Next <span class="hi">'+fd(v.nextDate)+'</span></span>' : '')+
           '</div>'+
           (v.notes ? '<div class="lcard-note">'+esc(v.notes)+'</div>' : '')+
           '<div class="lcard-acts">'+
-            '<button class="btn btn-red btn-sm" type="button" data-act="veh-bill">＋ Bill</button>'+
-            '<button class="btn btn-ghost btn-sm" type="button" data-act="veh-history">Repair History →</button>'+
-            '<button class="btn btn-ghost btn-sm btn-icon" type="button" data-act="veh-edit" aria-label="Edit">✏️</button>'+
-            '<button class="btn btn-danger-ghost btn-sm btn-icon" type="button" data-act="veh-del" aria-label="Delete">✕</button>'+
+            '<button class="btn btn-red btn-sm" type="button" data-act="veh-bill">'+ic('plus',15)+'Bill</button>'+
+            '<button class="btn btn-ghost btn-sm" type="button" data-act="veh-history">Repair History'+ic('arrowR',15)+'</button>'+
+            '<button class="btn btn-ghost btn-sm btn-icon" type="button" data-act="veh-edit" aria-label="Edit">'+ic('pencil',15)+'</button>'+
+            '<button class="btn btn-danger-ghost btn-sm btn-icon" type="button" data-act="veh-del" aria-label="Delete">'+ic('trash',15)+'</button>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -361,7 +361,7 @@ function showVehicleHistory(id){
   }
 
   infoSheet({
-    icon:'🔧',
+    icon:'wrench',
     title: vehicleLabel(v) + (v.plate ? ' · ' + v.plate : ''),
     sub: customerName(v.customerId) || 'No owner set',
     body: body
@@ -401,7 +401,7 @@ function showCustomerCars(id){
       }).join('')
     : '<div class="hist-row"><div class="hist-row-sub">No bills yet.</div></div>';
 
-  infoSheet({ icon:'👤', title:c.name, sub:c.phone || '', body:body });
+  infoSheet({ icon:'user', title:c.name, sub:c.phone || '', body:body });
 }
 
 /* ══════════════════════════ WIRING ══════════════════════════ */

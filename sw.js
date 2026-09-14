@@ -10,12 +10,13 @@
    old cache to be thrown away and the new files to be pulled in.
    ========================================================================== */
 
-var CACHE_VERSION = 'fixdrive-v4';
+var CACHE_VERSION = 'fixdrive-v5';
 
 var PRECACHE = [
   './',
   './index.html',
   './style.css',
+  './icons.js',
   './data.js',
   './app.js',
   './people.js',

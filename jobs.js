@@ -14,12 +14,13 @@
 
 var J_CYCLE = ['waiting','in_progress','done','collected'];
 var J_LABEL = {
-  waiting:'● Waiting', in_progress:'↻ In Progress',
-  done:'✓ Done', collected:'↑ Collected'
+  waiting:'Waiting', in_progress:'In Progress',
+  done:'Done', collected:'Collected'
 };
 var J_NEXT  = {
-  waiting:'→ Start Work', in_progress:'✓ Mark Done', done:'↑ Mark Collected'
+  waiting:'Start Work', in_progress:'Mark Done', done:'Mark Collected'
 };
+var J_NEXT_IC = { waiting:'play', in_progress:'check', done:'arrowR' };
 
 var _jobFilter = 'active';   // active | all | waiting | in_progress | done
 
@@ -95,7 +96,7 @@ function editJob(id){
 
   formSheet({
     title: id ? 'Edit Job Card' : 'New Job Card',
-    icon: '🔧',
+    icon:'wrench',
     body: jobCardForm(j),
     confirmText: id ? 'Save Changes' : 'Open Job Card',
     onOpen: function(){
@@ -175,7 +176,7 @@ function addPartToJob(jobId){
   }).join('');
 
   formSheet({
-    title:'Add a Part', icon:'📦',
+    title:'Add a Part', icon:'box',
     body:
       '<div class="fields">'+
         '<div class="field m-full d-full"><label for="f-jp-part">Part</label>'+
@@ -237,7 +238,7 @@ function removePartFromJob(jobId, index){
 
 function addLabourToJob(jobId){
   formSheet({
-    title:'Add Labour', icon:'🔧',
+    title:'Add Labour', icon:'wrench',
     body:
       '<div class="fields">'+
         fieldText('f-jl-desc','Work done','','e.g. Brake job, front','m-full d-full')+
@@ -288,7 +289,7 @@ function advanceJob(id){
   // A car should not leave without being billed.
   if(J_CYCLE[ni] === 'collected' && !j.billId && jobTotal(j) > 0){
     confirmSheet({
-      icon:'⚠️', title:'No invoice for this job', confirmText:'Collect anyway',
+      icon:'alert', title:'No invoice for this job', confirmText:'Collect anyway',
       msg:'This card is worth ' + fmtV(jobTotal(j)) + ' but no invoice has been made from it yet. Create the invoice first?',
       onConfirm: function(){ setJobStatus(id, 'collected'); }
     });
@@ -313,7 +314,7 @@ function delJob(id){
   if(!j) return;
   var n = (j.parts || []).length;
   confirmSheet({
-    icon:'🗑️', title:'Remove this job card?', danger:true, confirmText:'Remove',
+    icon:'trash', title:'Remove this job card?', danger:true, confirmText:'Remove',
     msg: n
       ? 'The ' + n + ' part' + (n !== 1 ? 's' : '') + ' booked to it will go back into stock.'
       : 'It will be taken off the board.',
@@ -411,7 +412,7 @@ function renderJobs(){
         '<span class="jline-q">'+p.qty+'×</span>'+
         '<span class="jline-d">'+esc(p.name)+'</span>'+
         '<span class="jline-a">'+fm(p.qty * p.price,'USD')+'</span>'+
-        '<button class="jline-x" type="button" data-act="job-rmpart" data-i="'+i+'" aria-label="Remove">✕</button>'+
+        '<button class="jline-x" type="button" data-act="job-rmpart" data-i="'+i+'" aria-label="Remove">'+ic('x',14)+'</button>'+
       '</div>';
     }).join('');
 
@@ -420,7 +421,7 @@ function renderJobs(){
         '<span class="jline-q">'+l.hours+'h</span>'+
         '<span class="jline-d">'+esc(l.desc)+'</span>'+
         '<span class="jline-a">'+fm(l.hours * l.rate,'USD')+'</span>'+
-        '<button class="jline-x" type="button" data-act="job-rmlabour" data-i="'+i+'" aria-label="Remove">✕</button>'+
+        '<button class="jline-x" type="button" data-act="job-rmlabour" data-i="'+i+'" aria-label="Remove">'+ic('x',14)+'</button>'+
       '</div>';
     }).join('');
 
@@ -430,7 +431,7 @@ function renderJobs(){
         '<div>'+
           '<div class="lcard-name">'+esc(j.custName)+
             ' <span class="badge '+j.status+'" data-act="job-advance">'+J_LABEL[j.status]+'</span>'+
-            (j.billId ? ' <span class="badge paid" data-act="none">✓ INVOICED</span>' : '')+
+            (j.billId ? '<span class="badge paid" data-act="none">'+ic('check',13)+'Invoiced</span>' : '')+
           '</div>'+
         '</div>'+
         '<div class="lcard-amt">'+(total > 0 ? fm(total,'USD') : '—')+'</div>'+
@@ -438,11 +439,11 @@ function renderJobs(){
 
       '<div class="jmeta">'+
         ((j.vehModel || j.vehPlate)
-          ? '<span>🚗 '+esc(j.vehModel || '')+(j.vehPlate ? ' · <span class="plate">'+esc(j.vehPlate)+'</span>' : '')+'</span>' : '')+
-        (j.phone ? '<span>📞 '+esc(j.phone)+'</span>' : '')+
-        (j.mechanic ? '<span>🔧 <span class="hi">'+esc(j.mechanic)+'</span></span>' : '')+
-        (j.km ? '<span>📍 '+esc(j.km)+' km</span>' : '')+
-        '<span>🕐 '+jobAge(j)+'</span>'+
+          ? '<span>'+ic('car',14)+esc(j.vehModel || '')+(j.vehPlate ? '<span class="plate">'+esc(j.vehPlate)+'</span>' : '')+'</span>' : '')+
+        (j.phone ? '<span>'+ic('phone',14)+esc(j.phone)+'</span>' : '')+
+        (j.mechanic ? '<span>'+ic('wrench',14)+'<span class="hi">'+esc(j.mechanic)+'</span></span>' : '')+
+        (j.km ? '<span>'+ic('gauge',14)+esc(j.km)+' km</span>' : '')+
+        '<span>'+ic('clock',14)+jobAge(j)+'</span>'+
       '</div>'+
 
       '<div class="jsec"><span class="jsec-l">Reported</span>'+esc(j.problem || '—')+'</div>'+
@@ -464,13 +465,13 @@ function renderJobs(){
           '</div>' : '')+
 
       '<div class="lcard-acts">'+
-        '<button class="btn btn-ghost btn-sm" type="button" data-act="job-addpart">＋ Part</button>'+
-        '<button class="btn btn-ghost btn-sm" type="button" data-act="job-addlabour">＋ Labour</button>'+
-        (next ? '<button class="btn btn-red btn-sm" type="button" data-act="job-advance">'+next+'</button>' : '')+
+        '<button class="btn btn-ghost btn-sm" type="button" data-act="job-addpart">'+ic('plus',15)+'Part</button>'+
+        '<button class="btn btn-ghost btn-sm" type="button" data-act="job-addlabour">'+ic('plus',15)+'Labour</button>'+
+        (next ? '<button class="btn btn-red btn-sm" type="button" data-act="job-advance">'+ic(J_NEXT_IC[j.status],15)+next+'</button>' : '')+
         (total > 0 && !j.billId
-          ? '<button class="btn btn-dark btn-sm" type="button" data-act="job-invoice">Make Invoice →</button>' : '')+
-        '<button class="btn btn-ghost btn-sm btn-icon" type="button" data-act="job-edit" aria-label="Edit">✏️</button>'+
-        '<button class="btn btn-danger-ghost btn-sm btn-icon" type="button" data-act="job-del" aria-label="Remove">✕</button>'+
+          ? '<button class="btn btn-dark btn-sm" type="button" data-act="job-invoice">Make Invoice'+ic('arrowR',15)+'</button>' : '')+
+        '<button class="btn btn-ghost btn-sm btn-icon" type="button" data-act="job-edit" aria-label="Edit">'+ic('pencil',15)+'</button>'+
+        '<button class="btn btn-danger-ghost btn-sm btn-icon" type="button" data-act="job-del" aria-label="Remove">'+ic('trash',15)+'</button>'+
       '</div>'+
     '</div>';
   }).join('');

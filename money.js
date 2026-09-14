@@ -24,12 +24,12 @@ function paymentSheet(billId){
 
   var methodBtns = PAY_METHODS.map(function(m,i){
     return '<button type="button" class="method-btn'+(i === 0 ? ' on' : '')+'" data-method="'+esc(m)+'">'+
-      '<span class="method-ico">'+PAY_ICONS[m]+'</span>'+esc(m)+'</button>';
+      '<span class="method-ico">'+ic(METHOD_ICON[m],20)+'</span>'+esc(m)+'</button>';
   }).join('');
 
   formSheet({
     title: 'Record a Payment',
-    icon: '💵',
+    icon:'banknote',
     sub: bill ? (bill.custName || 'Customer') + (bill.invNo ? ' · ' + bill.invNo : '') : '',
     body:
       (bill
@@ -103,7 +103,7 @@ function paidRemaining(bill){
 
 function delPayment(id){
   confirmSheet({
-    icon:'🗑️', title:'Delete this payment?', danger:true, confirmText:'Delete',
+    icon:'trash', title:'Delete this payment?', danger:true, confirmText:'Delete',
     msg:'It will come off the day\'s takings. Any bill it was against may go back to unpaid.',
     onConfirm: function(){
       var p = byId(gPay(), id);
@@ -128,9 +128,7 @@ function delPayment(id){
 /* ══════════════════════════ THE DAY VIEW ══════════════════════════ */
 
 function shiftDay(days){
-  var d = new Date(dayDate());
-  d.setDate(d.getDate() + days);
-  _dayDate = d.toISOString().split('T')[0];
+  _dayDate = addDays(dayDate(), days);
   renderDay();
 }
 
@@ -165,7 +163,7 @@ function renderDay(){
   var methodRows = PAY_METHODS.map(function(m){
     var v = byMethod[m];
     return '<div class="day-row'+(v ? '' : ' zero')+'">'+
-      '<span class="day-row-l">'+PAY_ICONS[m]+' '+esc(m)+'</span>'+
+      '<span class="day-row-l">'+ic(METHOD_ICON[m],16)+esc(m)+'</span>'+
       '<span class="day-row-v">'+fmtV(v)+'</span>'+
     '</div>';
   }).join('');
@@ -174,13 +172,13 @@ function renderDay(){
     ? pays.map(function(p){
         var bill = p.billId ? gb().find(function(b){ return String(b.id) === String(p.billId); }) : null;
         return '<div class="pay-row" data-id="'+esc(p.id)+'">'+
-          '<span class="pay-ico">'+(PAY_ICONS[p.method] || '💵')+'</span>'+
+          '<span class="pay-ico">'+ic(METHOD_ICON[p.method] || 'banknote',17)+'</span>'+
           '<span class="pay-body">'+
             '<span class="pay-who">'+esc(bill ? (bill.custName || 'Customer') : (p.note || 'Payment'))+'</span>'+
             '<span class="pay-sub">'+esc(p.method)+(bill && bill.invNo ? ' · '+esc(bill.invNo) : '')+'</span>'+
           '</span>'+
           '<span class="pay-amt">'+fm(p.amount, p.currency || 'USD')+'</span>'+
-          '<button class="jline-x" type="button" data-act="pay-del" aria-label="Delete">✕</button>'+
+          '<button class="jline-x" type="button" data-act="pay-del" aria-label="Delete">'+ic('x',14)+'</button>'+
         '</div>';
       }).join('')
     : '<div class="pay-row empty-line">Nothing taken in yet on this day.</div>';
@@ -188,7 +186,7 @@ function renderDay(){
   var expList = exps.length
     ? exps.map(function(e){
         return '<div class="pay-row">'+
-          '<span class="pay-ico">'+(EXP_ICONS[e.category] || '📋')+'</span>'+
+          '<span class="pay-ico" style="color:'+(EXP_COLORS[e.category]||'var(--mute)')+'">'+ic(CAT_ICON[e.category] || 'list',17)+'</span>'+
           '<span class="pay-body">'+
             '<span class="pay-who">'+esc(e.category)+'</span>'+
             '<span class="pay-sub">'+esc(e.desc || e.vendor || '')+'</span>'+

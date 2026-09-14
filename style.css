@@ -5,25 +5,41 @@
    ========================================================================== */
 
 :root{
-  --red:#c1272d; --red-h:#a01e23; --red-s:#fff0f0; --red-b:#fecaca;
-  --ink:#0f172a; --ink2:#1e293b; --ink3:#334155;
-  --sub:#475569; --mute:#64748b;
-  --bg:#f1f5f9; --card:#fff;
-  --brd:#dbe2ea; --brd2:#b9c4d1;
-  --grn:#047857; --grn-s:#ecfdf5; --grn-b:#6ee7b7;
-  --amb:#b45309; --amb-s:#fffbeb; --amb-b:#fcd34d;
-  --blu:#1d4ed8; --blu-s:#eff6ff; --blu-b:#bfdbfe;
-  --wa:#25d366;
+  /* Brand red, kept for the things that are actually Fix & Drive: the mark,
+     the primary action, the active tab. Everywhere else is neutral. */
+  --red:#c1272d; --red-h:#a81f25; --red-s:#fdf2f2; --red-b:#f3c9cb;
 
-  --r8:8px; --r12:12px; --r16:16px; --r20:20px;
-  --sh:0 2px 8px rgba(15,23,42,.07);
-  --sh-lg:0 12px 34px rgba(15,23,42,.18);
+  /* Neutrals do the heavy lifting. Numbers read as information, not alarm. */
+  --ink:#16191d;      /* headings, figures        */
+  --ink2:#242930;     /* dark surfaces            */
+  --ink3:#3d444d;     /* body text                */
+  --sub:#5b636d;      /* secondary text           */
+  --mute:#868e99;     /* tertiary, placeholders   */
 
-  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --bg:#f6f7f9;       /* page                     */
+  --card:#fff;        /* surfaces                 */
+  --brd:#e4e7ec;      /* hairlines                */
+  --brd2:#d0d5dd;     /* stronger edges           */
 
-  /* Touch sizing — the whole design keys off these. */
-  --tap:56px;
-  --nav-h:68px;
+  /* Status colours are muted: enough to read at a glance, not to shout. */
+  --grn:#087443; --grn-s:#f0fdf4; --grn-b:#bbf7d0;
+  --amb:#9a5b0b; --amb-s:#fffbeb; --amb-b:#fde68a;
+  --blu:#1d4ed8; --blu-s:#eff6ff; --blu-b:#c7d7fe;
+  --wa:#1faf54;
+
+  /* Geometry: pill-shaped cards read as toys. Small radii read as software. */
+  --r4:4px; --r6:6px; --r8:8px; --r10:10px;
+  --r12:10px; --r16:12px; --r20:14px;   /* legacy names, retuned */
+
+  /* Shadows are nearly gone — borders carry the separation instead. */
+  --sh:0 1px 2px rgba(16,24,40,.05);
+  --sh-lg:0 12px 32px rgba(16,24,40,.14);
+
+  --font:system-ui,-apple-system,"Segoe UI Variable Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+
+  /* Touch sizing. The laptop block below tightens these considerably. */
+  --tap:54px;
+  --nav-h:66px;
 
   --safe-b:env(safe-area-inset-bottom,0px);
   --safe-t:env(safe-area-inset-top,0px);
@@ -55,15 +71,26 @@ body{
    below 16px triggers it, so 16px is a hard floor on every control. */
 input,select,textarea,button{font-family:inherit;font-size:16px}
 
+/* Figures line up between rows instead of dancing about. */
+.lcard-amt,.stat-box .n,.stat-pill .v,.grand-v,.trow-v,.day-row-v,
+.jtotals strong,.pay-amt,.stock-pill,.item-amount .v,.sticky-total .v,
+.day-net strong,.hist-row-top span{
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum" 1;
+}
+
+/* Inline icons sit on the text baseline rather than floating above it. */
+.ic{flex-shrink:0; vertical-align:-.16em}
+
 /* ==========================================================================
    APP BAR
    ========================================================================== */
 
 .appbar{
   position:sticky; top:0; z-index:60;
-  background:linear-gradient(135deg,#080d1a 0%,#111c2e 55%,#0c1525 100%);
+  background:var(--ink2);
   padding-top:var(--safe-t);
-  box-shadow:0 2px 14px rgba(0,0,0,.24);
+  border-bottom:1px solid rgba(255,255,255,.07);
 }
 
 .appbar-top{
@@ -72,35 +99,34 @@ input,select,textarea,button{font-family:inherit;font-size:16px}
 }
 
 .logo-badge{
-  width:42px; height:42px; flex-shrink:0;
-  background:var(--red); border-radius:11px;
+  width:36px; height:36px; flex-shrink:0;
+  background:var(--red); border-radius:var(--r6);
   display:flex; align-items:center; justify-content:center;
-  box-shadow:0 3px 12px rgba(193,39,45,.5);
 }
 
 .logo-text{flex:1; min-width:0}
 .logo-name{
-  font-size:16px; font-weight:800; color:#fff;
-  letter-spacing:.9px; line-height:1.1; white-space:nowrap;
+  font-size:14.5px; font-weight:600; color:#fff;
+  letter-spacing:.4px; line-height:1.15; white-space:nowrap;
 }
 .logo-tag{
-  font-size:8.5px; font-weight:600; letter-spacing:3px;
-  color:rgba(255,255,255,.34); text-transform:uppercase; margin-top:3px;
+  font-size:9.5px; font-weight:500; letter-spacing:1.6px;
+  color:rgba(255,255,255,.4); text-transform:uppercase; margin-top:2px;
 }
 
 /* Currency picker lives in the bar so it is always one tap away. */
 .curr-box{flex-shrink:0; text-align:right}
 .curr-sel{
-  background:rgba(255,255,255,.1);
-  border:1.5px solid rgba(255,255,255,.16);
-  color:#fff; border-radius:var(--r8);
-  padding:10px 12px; font-weight:700; font-size:15px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.14);
+  color:#fff; border-radius:var(--r6);
+  padding:9px 11px; font-weight:550; font-size:14px;
   -webkit-appearance:none; appearance:none; outline:none;
-  min-height:44px;
+  min-height:38px; cursor:pointer;
 }
 .curr-sel option{background:#1e293b; color:#fff}
 .curr-rate{
-  font-size:9.5px; color:rgba(255,255,255,.36);
+  font-size:10px; color:rgba(255,255,255,.38);
   margin-top:3px; white-space:nowrap;
 }
 
@@ -114,16 +140,16 @@ input,select,textarea,button{font-family:inherit;font-size:16px}
 }
 .stat-strip::-webkit-scrollbar{display:none}
 .stat-pill{
-  flex:0 0 auto; min-width:82px;
-  background:rgba(255,255,255,.07);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:var(--r12);
-  padding:8px 13px;
+  flex:0 0 auto; min-width:78px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--r6);
+  padding:7px 12px;
 }
-.stat-pill .v{font-size:18px; font-weight:800; color:#fff; line-height:1.15}
+.stat-pill .v{font-size:16.5px; font-weight:600; color:#fff; line-height:1.2; letter-spacing:-.2px}
 .stat-pill .l{
-  font-size:8.5px; font-weight:600; letter-spacing:1.6px;
-  color:rgba(255,255,255,.4); text-transform:uppercase; margin-top:2px;
+  font-size:10px; font-weight:500; letter-spacing:.4px;
+  color:rgba(255,255,255,.45); margin-top:1px;
 }
 
 /* ==========================================================================
@@ -139,31 +165,31 @@ input,select,textarea,button{font-family:inherit;font-size:16px}
 #pane-new{padding-bottom:calc(var(--nav-h) + var(--safe-b) + 96px)}
 
 .pane-title{
-  font-size:22px; font-weight:800; letter-spacing:-.4px;
-  margin-bottom:14px; color:var(--ink);
+  font-size:23px; font-weight:650; letter-spacing:-.5px;
+  margin-bottom:16px; color:var(--ink);
 }
 
 .card{
   background:var(--card);
-  border-radius:var(--r16);
+  border-radius:var(--r10);
   border:1px solid var(--brd);
   box-shadow:var(--sh);
   padding:16px;
-  margin-bottom:14px;
+  margin-bottom:12px;
 }
 
 .sect-head{
-  display:flex; align-items:center; gap:10px;
-  margin-bottom:14px;
+  display:flex; align-items:center; gap:9px;
+  margin-bottom:16px; padding-bottom:11px;
+  border-bottom:1px solid var(--brd);
 }
 .sect-ico{
-  width:34px; height:34px; flex-shrink:0;
-  background:var(--red-s); border-radius:10px;
+  flex-shrink:0; color:var(--mute);
   display:flex; align-items:center; justify-content:center;
 }
 .sect-title{
-  font-size:12px; font-weight:800; color:var(--sub);
-  text-transform:uppercase; letter-spacing:1.5px;
+  font-size:12.5px; font-weight:600; color:var(--sub);
+  text-transform:uppercase; letter-spacing:.9px;
 }
 
 /* ==========================================================================
@@ -174,9 +200,9 @@ input,select,textarea,button{font-family:inherit;font-size:16px}
 .field:last-child{margin-bottom:0}
 
 .field label{
-  display:block; font-size:13px; font-weight:700;
-  color:var(--sub); margin-bottom:7px;
-  text-transform:uppercase; letter-spacing:.7px;
+  display:block; font-size:13px; font-weight:550;
+  color:var(--sub); margin-bottom:6px;
+  text-transform:none; letter-spacing:0;
 }
 
 .field input,
@@ -184,13 +210,13 @@ input,select,textarea,button{font-family:inherit;font-size:16px}
 .field textarea{
   width:100%;
   min-height:var(--tap);
-  border:2px solid var(--brd);
-  border-radius:var(--r12);
-  padding:14px 15px;
-  font-size:17px; font-weight:600;
-  color:var(--ink); background:#fafbfc;
+  border:1px solid var(--brd2);
+  border-radius:var(--r8);
+  padding:13px 14px;
+  font-size:16px; font-weight:450;
+  color:var(--ink); background:#fff;
   outline:none;
-  transition:border-color .14s, background .14s;
+  transition:border-color .14s, box-shadow .14s;
 }
 .field textarea{min-height:88px; resize:vertical; font-weight:500; line-height:1.5}
 .field select{
@@ -203,8 +229,8 @@ input,select,textarea,button{font-family:inherit;font-size:16px}
 .field input:focus,
 .field select:focus,
 .field textarea:focus{
-  border-color:var(--red); background:#fff;
-  box-shadow:0 0 0 4px rgba(193,39,45,.12);
+  border-color:var(--red);
+  box-shadow:0 0 0 3px rgba(193,39,45,.10);
 }
 .field input::placeholder,.field textarea::placeholder{color:#94a3b8; font-weight:400}
 
@@ -225,28 +251,30 @@ input[type="date"]{
    ========================================================================== */
 
 .btn{
-  display:inline-flex; align-items:center; justify-content:center; gap:9px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
   min-height:var(--tap);
-  padding:14px 20px;
-  border:none; border-radius:var(--r12);
-  font-size:17px; font-weight:700;
+  padding:12px 18px;
+  border:1px solid transparent; border-radius:var(--r8);
+  font-size:16px; font-weight:550;
   cursor:pointer; text-decoration:none;
-  transition:transform .1s, filter .1s;
+  transition:background .12s, border-color .12s, transform .08s;
   user-select:none; -webkit-user-select:none;
-  line-height:1.2;
+  line-height:1.2; white-space:nowrap;
 }
-.btn:active{transform:scale(.97); filter:brightness(.93)}
+.btn:active{transform:scale(.985)}
 
 .btn-block{width:100%}
-.btn-red{background:var(--red); color:#fff; box-shadow:0 3px 12px rgba(193,39,45,.32)}
+.btn-red{background:var(--red); color:#fff; font-weight:600}
+.btn-red:active{background:var(--red-h)}
 .btn-dark{background:var(--ink2); color:#fff}
-.btn-wa{background:var(--wa); color:#fff; box-shadow:0 3px 12px rgba(37,211,102,.3)}
-.btn-ghost{background:#fff; color:var(--sub); border:2px solid var(--brd2)}
-.btn-danger-ghost{background:#fff; color:var(--red); border:2px solid var(--red-b)}
+.btn-wa{background:var(--wa); color:#fff}
+.btn-ghost{background:#fff; color:var(--ink3); border-color:var(--brd2)}
+.btn-ghost:active{background:var(--bg)}
+.btn-danger-ghost{background:#fff; color:var(--red); border-color:var(--red-b)}
 
 /* Compact variant for inside list cards — still 44px, the iOS minimum. */
-.btn-sm{min-height:44px; padding:10px 14px; font-size:15px; border-radius:10px; gap:6px}
-.btn-icon{min-height:44px; min-width:44px; padding:10px; font-size:17px}
+.btn-sm{min-height:42px; padding:9px 13px; font-size:14.5px; border-radius:var(--r6); gap:6px}
+.btn-icon{min-height:42px; min-width:42px; padding:9px; font-size:16px}
 
 .btn-stack{display:flex; flex-direction:column; gap:10px}
 .btn-pair{display:flex; gap:10px}
@@ -358,7 +386,7 @@ input[type="date"]{
    TOTALS
    ========================================================================== */
 
-.totals{border:2px solid var(--brd); border-radius:var(--r12); overflow:hidden}
+.totals{border:1px solid var(--brd); border-radius:var(--r8); overflow:hidden}
 .totals-body{padding:6px 14px}
 .trow{
   display:flex; justify-content:space-between; align-items:center;
@@ -380,13 +408,13 @@ input[type="date"]{
 
 .grand{
   display:flex; justify-content:space-between; align-items:center;
-  padding:16px 16px; background:var(--ink2); gap:10px;
+  padding:15px 16px; background:var(--ink2); gap:10px;
 }
 .grand-l{
-  font-size:11px; font-weight:800; letter-spacing:2px;
-  color:rgba(255,255,255,.5); text-transform:uppercase;
+  font-size:12px; font-weight:500; letter-spacing:.5px;
+  color:rgba(255,255,255,.55);
 }
-.grand-v{font-size:26px; font-weight:800; color:#fff; letter-spacing:-.6px}
+.grand-v{font-size:24px; font-weight:600; color:#fff; letter-spacing:-.6px}
 
 /* Running total pinned above the nav, so the number and Save are always
    reachable no matter how far down the form the mechanic has scrolled.
@@ -421,19 +449,26 @@ input[type="date"]{
 }
 .stat-grid.four{grid-template-columns:1fr 1fr}
 .stat-box{
-  background:var(--card); border:1.5px solid var(--brd);
-  border-radius:var(--r12); padding:14px 12px; text-align:center;
+  position:relative; overflow:hidden;
+  background:var(--card); border:1px solid var(--brd);
+  border-radius:var(--r8); padding:14px 16px;
+  text-align:left;
 }
-.stat-box.amber{background:var(--amb-s); border-color:var(--amb-b)}
-.stat-box.green{background:var(--grn-s); border-color:var(--grn-b)}
-.stat-box.blue {background:var(--blu-s); border-color:var(--blu-b)}
-.stat-box .n{font-size:26px; font-weight:800; color:var(--red); line-height:1.1; letter-spacing:-.5px}
-.stat-box.amber .n{color:var(--amb)}
-.stat-box.green .n{color:var(--grn)}
-.stat-box.blue  .n{color:var(--blu)}
+/* Status reads as a 3px edge, not a filled panel. */
+.stat-box::before{
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:transparent;
+}
+.stat-box.amber::before{background:var(--amb)}
+.stat-box.green::before{background:var(--grn)}
+.stat-box.blue::before {background:var(--blu)}
+.stat-box .n{
+  font-size:25px; font-weight:650; color:var(--ink);
+  line-height:1.15; letter-spacing:-.6px;
+}
 .stat-box .l{
-  font-size:10.5px; font-weight:700; color:var(--mute);
-  text-transform:uppercase; letter-spacing:1.2px; margin-top:5px;
+  font-size:12px; font-weight:500; color:var(--sub);
+  letter-spacing:0; margin-top:3px; text-transform:none;
 }
 
 /* ==========================================================================
@@ -443,14 +478,14 @@ input[type="date"]{
 .search-wrap{position:relative; margin-bottom:12px}
 .search-wrap input{
   width:100%; min-height:var(--tap);
-  border:2px solid var(--brd); border-radius:var(--r12);
-  padding:14px 46px 14px 46px;
-  font-size:16px; font-weight:600;
+  border:1px solid var(--brd2); border-radius:var(--r8);
+  padding:12px 44px 12px 42px;
+  font-size:15px; font-weight:450;
   background:#fff; outline:none; color:var(--ink);
 }
-.search-wrap input:focus{border-color:var(--red); box-shadow:0 0 0 4px rgba(193,39,45,.1)}
+.search-wrap input:focus{border-color:var(--red); box-shadow:0 0 0 3px rgba(193,39,45,.10)}
 .search-ico{
-  position:absolute; left:15px; top:50%; transform:translateY(-50%);
+  position:absolute; left:13px; top:50%; transform:translateY(-50%);
   pointer-events:none; color:var(--mute);
 }
 .search-clear{
@@ -468,14 +503,14 @@ input[type="date"]{
 }
 .pill-row::-webkit-scrollbar{display:none}
 .pill{
-  flex:0 0 auto; min-height:44px;
-  padding:10px 16px; border-radius:22px;
-  border:2px solid var(--brd2); background:#fff;
-  color:var(--sub); font-size:14.5px; font-weight:700;
+  flex:0 0 auto; min-height:38px;
+  padding:8px 14px; border-radius:var(--r6);
+  border:1px solid var(--brd2); background:#fff;
+  color:var(--ink3); font-size:14px; font-weight:500;
   cursor:pointer; white-space:nowrap;
 }
-.pill:active{transform:scale(.96)}
-.pill.on{background:var(--ink2); color:#fff; border-color:var(--ink2)}
+.pill:active{transform:scale(.98)}
+.pill.on{background:var(--ink2); color:#fff; border-color:var(--ink2); font-weight:550}
 
 /* Segmented control (Customers / Vehicles) */
 .segment{
@@ -491,13 +526,13 @@ input[type="date"]{
 .segment button.on{background:var(--ink2); color:#fff; box-shadow:0 2px 8px rgba(0,0,0,.14)}
 
 .summary-bar{
-  display:flex; gap:16px; flex-wrap:wrap;
-  padding:12px 14px; background:var(--card);
-  border:1.5px solid var(--brd); border-radius:var(--r12);
-  margin-bottom:12px; font-size:14px; font-weight:600; color:var(--sub);
+  display:flex; gap:20px; flex-wrap:wrap;
+  padding:11px 14px; background:transparent;
+  border:1px solid var(--brd); border-radius:var(--r6);
+  margin-bottom:12px; font-size:13.5px; font-weight:450; color:var(--sub);
 }
-.summary-bar .hi{color:var(--ink); font-weight:800}
-.summary-bar .warn{color:var(--amb); font-weight:800}
+.summary-bar .hi{color:var(--ink); font-weight:600}
+.summary-bar .warn{color:var(--amb); font-weight:600}
 
 /* ==========================================================================
    LIST CARDS (bills / expenses / history / jobs)
@@ -506,15 +541,15 @@ input[type="date"]{
 .lcard{
   position:relative; overflow:hidden;
   background:var(--card);
-  border:1.5px solid var(--brd);
-  border-radius:var(--r16);
-  padding:14px 14px 14px 18px;
-  margin-bottom:11px;
+  border:1px solid var(--brd);
+  border-radius:var(--r8);
+  padding:14px 14px 14px 17px;
+  margin-bottom:8px;
   box-shadow:var(--sh);
 }
 .lcard::before{
-  content:''; position:absolute; left:0; top:0; bottom:0; width:5px;
-  background:var(--brd2);
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:transparent;
 }
 .lcard.paid::before{background:var(--grn)}
 .lcard.unpaid::before{background:var(--amb)}
@@ -530,23 +565,30 @@ input[type="date"]{
   gap:10px; margin-bottom:8px;
 }
 .lcard-name{
-  font-size:17px; font-weight:800; color:var(--ink);
-  line-height:1.25; word-break:break-word;
+  font-size:16px; font-weight:600; color:var(--ink);
+  line-height:1.3; word-break:break-word;
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
 }
-.lcard-ref{font-size:14px; font-weight:500; color:var(--mute)}
+.lcard-ref{font-size:13.5px; font-weight:450; color:var(--mute); margin-top:2px}
 .lcard-amt{
-  font-size:19px; font-weight:800; color:var(--ink);
-  white-space:nowrap; flex-shrink:0;
+  font-size:17px; font-weight:600; color:var(--ink);
+  white-space:nowrap; flex-shrink:0; letter-spacing:-.2px;
 }
 .lcard-amt.red{color:var(--red)}
 
 .lcard-meta{
-  display:flex; flex-wrap:wrap; gap:6px 14px;
-  font-size:14px; color:var(--mute);
+  display:flex; flex-wrap:wrap; align-items:center; gap:5px 14px;
+  font-size:13.5px; color:var(--sub);
   margin-bottom:12px;
 }
-.lcard-meta .hi{color:var(--ink); font-weight:700}
-.lcard-desc{font-size:15.5px; color:var(--ink3); font-weight:600; margin-bottom:8px}
+.lcard-meta span{display:inline-flex; align-items:center; gap:5px}
+.lcard-meta .ic{color:var(--mute)}
+.lcard-meta .hi{color:var(--ink); font-weight:550}
+.lcard-desc{
+  font-size:15px; color:var(--ink3); font-weight:450; margin-bottom:8px;
+  display:flex; align-items:center; gap:7px;
+}
+.lcard-desc .ic{color:var(--mute); flex-shrink:0}
 
 .lcard-acts{display:flex; gap:8px; flex-wrap:wrap}
 .lcard-acts .btn{flex:1; min-width:82px}
@@ -559,11 +601,12 @@ input[type="date"]{
 /* Status badge — tappable, so it gets a real target size. */
 .badge{
   display:inline-flex; align-items:center; gap:5px;
-  min-height:34px; padding:6px 13px;
-  border-radius:18px; border:2px solid transparent;
-  font-size:13px; font-weight:800; letter-spacing:.3px;
+  min-height:26px; padding:4px 10px;
+  border-radius:var(--r4); border:1px solid transparent;
+  font-size:12px; font-weight:600; letter-spacing:.1px;
+  text-transform:uppercase;
   cursor:pointer; user-select:none; -webkit-user-select:none;
-  white-space:nowrap; margin-top:6px;
+  white-space:nowrap;
 }
 .badge:active{transform:scale(.95)}
 .badge.paid     {background:var(--grn-s); color:var(--grn); border-color:var(--grn-b)}
@@ -576,10 +619,11 @@ input[type="date"]{
 
 /* History + expense rows lead with a big glyph for fast scanning. */
 .lcard-ico{
-  width:44px; height:44px; flex-shrink:0;
-  background:var(--red-s); border-radius:12px;
+  width:38px; height:38px; flex-shrink:0;
+  background:var(--bg); border:1px solid var(--brd);
+  border-radius:var(--r6); color:var(--sub);
   display:flex; align-items:center; justify-content:center;
-  font-size:22px; line-height:1;
+  line-height:1;
 }
 .lcard-flex{display:flex; align-items:flex-start; gap:12px}
 .lcard-flex > div:nth-child(2){flex:1; min-width:0}
@@ -600,10 +644,11 @@ input[type="date"]{
 .bottom-nav{
   position:fixed; left:0; right:0; bottom:0; z-index:70;
   display:flex;
-  background:#fff;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:saturate(180%) blur(12px);
+  -webkit-backdrop-filter:saturate(180%) blur(12px);
   border-top:1px solid var(--brd);
   padding-bottom:var(--safe-b);
-  box-shadow:0 -3px 16px rgba(15,23,42,.09);
 }
 .nav-btn{
   flex:1; min-width:0;
@@ -617,22 +662,23 @@ input[type="date"]{
 }
 .nav-btn svg{flex-shrink:0}
 .nav-btn span{
-  font-size:10.5px; font-weight:700; letter-spacing:.2px;
+  font-size:10.5px; font-weight:500; letter-spacing:.1px;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   max-width:100%;
 }
+.nav-btn.on span{font-weight:600}
 .nav-btn:active{background:var(--bg)}
 .nav-btn.on{color:var(--red)}
 .nav-btn.on::before{
-  content:''; position:absolute; top:0; left:22%; right:22%;
-  height:3px; background:var(--red); border-radius:0 0 3px 3px;
+  content:''; position:absolute; top:0; left:26%; right:26%;
+  height:2px; background:var(--red); border-radius:0 0 2px 2px;
 }
 /* Unread-style count for jobs still on the board */
 .nav-dot{
-  position:absolute; top:9px; left:calc(50% + 7px);
-  min-width:18px; height:18px; padding:0 5px;
+  position:absolute; top:8px; left:calc(50% + 8px);
+  min-width:17px; height:17px; padding:0 5px;
   background:var(--red); color:#fff;
-  border-radius:9px; font-size:10.5px; font-weight:800;
+  border-radius:9px; font-size:10px; font-weight:600;
   display:none; align-items:center; justify-content:center;
   border:2px solid #fff;
 }
@@ -976,8 +1022,10 @@ kbd{
   /* Mouse-sized rather than thumb-sized. Still generous: 46px is well above
      the 24px minimum, which matters for the person actually using this. */
   :root{
-    --tap:46px;
-    --item-cols:34px minmax(180px,1fr) 112px 78px 116px 116px 40px;
+    /* With a mouse and a keyboard the phone sizing just wastes the screen.
+       Still comfortably above any minimum, and the type stays 14-15px. */
+    --tap:38px;
+    --item-cols:30px minmax(180px,1fr) 104px 70px 108px 112px 36px;
   }
 
   body{
@@ -994,20 +1042,21 @@ kbd{
     position:sticky; top:0;
     height:100vh; overflow-y:auto;
     flex-direction:column; justify-content:flex-start;
-    gap:3px; padding:16px 12px;
+    gap:2px; padding:14px 10px 14px;
+    background:var(--card);
+    backdrop-filter:none; -webkit-backdrop-filter:none;
     border-top:none;
     border-right:1px solid var(--brd);
     box-shadow:none;
-    padding-bottom:16px;
   }
   .nav-brand{
-    display:flex; align-items:center; gap:11px;
-    padding:6px 8px 18px;
-    margin-bottom:6px;
+    display:flex; align-items:center; gap:10px;
+    padding:4px 6px 16px;
+    margin-bottom:8px;
     border-bottom:1px solid var(--brd);
   }
-  .nav-brand .logo-badge{width:36px; height:36px; border-radius:10px}
-  .nav-brand-name{font-size:13px; font-weight:800; color:var(--ink); letter-spacing:.6px; line-height:1.1}
+  .nav-brand .logo-badge{width:30px; height:30px; border-radius:var(--r6)}
+  .nav-brand-name{font-size:12.5px; font-weight:600; color:var(--ink); letter-spacing:.3px; line-height:1.1}
   .nav-brand-tag{
     font-size:8.5px; font-weight:700; letter-spacing:2.2px;
     color:var(--mute); text-transform:uppercase; margin-top:3px;
@@ -1015,13 +1064,15 @@ kbd{
 
   .nav-btn{
     flex:0 0 auto;
-    height:auto; min-height:48px;
+    height:auto; min-height:38px;
     flex-direction:row; justify-content:flex-start;
-    gap:13px; padding:12px 14px;
-    border-radius:11px;
+    gap:11px; padding:9px 11px;
+    border-radius:var(--r6);
   }
-  .nav-btn span{font-size:15px; font-weight:700}
+  .nav-btn svg{width:18px; height:18px}
+  .nav-btn span{font-size:14px; font-weight:500}
   .nav-btn.on{background:var(--red-s)}
+  .nav-btn.on span{font-weight:600}
   .nav-btn.on::before{
     top:10px; bottom:10px; left:0; right:auto;
     width:3.5px; height:auto;
@@ -1052,7 +1103,7 @@ kbd{
   .appbar{
     grid-area:bar;
     display:flex; align-items:center; gap:24px;
-    padding:12px 28px;
+    padding:0 28px; min-height:58px;
   }
   /* Flatten the wrapper so the logo, stats and currency all become items of
      the bar itself and can be ordered independently. */
@@ -1070,12 +1121,31 @@ kbd{
 
   /* ── CONTENT ── */
   main{grid-area:main; min-width:0}
-  .pane,#pane-new{
+    .pane,#pane-new{
     max-width:1180px; margin:0 auto;
-    padding:26px 30px 60px;
+    padding:28px 32px 64px;
   }
-  .pane-title{font-size:28px; margin-bottom:20px}
-  .card{padding:22px 24px; margin-bottom:16px}
+  .pane-title{font-size:26px; margin-bottom:20px; letter-spacing:-.6px}
+  .card{padding:20px 22px; margin-bottom:14px}
+  .sect-head{margin-bottom:18px; padding-bottom:12px}
+
+  /* Body copy drops to a desktop reading size. */
+  .field label{font-size:12.5px}
+  .btn{font-size:14.5px; padding:9px 16px; gap:7px}
+  .btn-sm{min-height:34px; padding:7px 11px; font-size:13.5px}
+  .btn-icon{min-height:34px; min-width:34px; padding:7px}
+  .lcard-name{font-size:15px}
+  .lcard-amt{font-size:16px}
+  .lcard-meta{font-size:13px}
+  .lcard-desc{font-size:14px}
+  .stat-box{padding:15px 17px}
+  .stat-box .n{font-size:26px}
+  .stat-box .l{font-size:12.5px}
+  .pill{min-height:34px; padding:7px 13px; font-size:13.5px}
+  .search-wrap input{min-height:38px; font-size:14.5px; padding-top:9px; padding-bottom:9px}
+  .badge{font-size:11px; min-height:22px; padding:3px 8px}
+  .summary-bar{font-size:13px; padding:10px 14px}
+  .subnav button{font-size:14.5px; min-height:40px}
   .sticky-total{display:none}
 
   /* ── FORMS ── */
@@ -1108,25 +1178,25 @@ kbd{
   .item-head{
     display:grid;
     grid-template-columns:var(--item-cols);
-    gap:10px; align-items:end;
-    /* 13.5px = the row's 12px padding + its 1.5px border, so the headings sit
+    gap:9px; align-items:end;
+    /* 13px = the row's 12px padding + its 1px border, so the headings sit
        exactly over the controls beneath them. */
-    padding:0 13.5px 9px;
-    font-size:10.5px; font-weight:800;
-    color:var(--mute); text-transform:uppercase; letter-spacing:1.1px;
-    border-bottom:2px solid var(--brd);
-    margin-bottom:9px;
+    padding:0 13px 9px;
+    font-size:11.5px; font-weight:550;
+    color:var(--mute); text-transform:none; letter-spacing:0;
+    border-bottom:1px solid var(--brd);
+    margin-bottom:8px;
   }
 
   .item-card{
     display:grid;
     grid-template-columns:var(--item-cols);
-    gap:10px; align-items:center;
-    padding:7px 12px; margin-bottom:6px;
-    border-width:1.5px; border-radius:10px;
+    gap:9px; align-items:center;
+    padding:5px 12px; margin-bottom:4px;
+    border-width:1px; border-radius:var(--r6);
     background:#fff;
   }
-  .item-card:focus-within{border-color:var(--brd2); background:#fafbfc}
+  .item-card:focus-within{border-color:var(--brd2); background:#fcfcfd}
 
   .item-card > .item-top,
   .item-card > .item-grid,
@@ -1135,20 +1205,20 @@ kbd{
   .item-cell label,
   .item-amount .l{display:none}
 
-  .item-num{order:1; width:28px; height:28px; font-size:13px}
-  .item-desc{order:2; min-height:42px; padding:10px 12px; font-size:15.5px}
-  .type-toggle{order:3; min-height:42px; font-size:12.5px}
+  .item-num{order:1; width:24px; height:24px; font-size:12px; border-radius:var(--r4); background:var(--bg); color:var(--sub); font-weight:550}
+  .item-desc{order:2; min-height:36px; padding:8px 11px; font-size:14.5px; border-width:1px; border-radius:var(--r6)}
+  .type-toggle{order:3; min-height:36px; font-size:12px; border-width:1px; border-radius:var(--r6)}
   .item-cell .i-q{order:4}
-  .item-cell .i-p{order:5; text-align:right; padding-right:12px}
-  .item-cell input{min-height:42px; padding:10px; font-size:15.5px}
+  .item-cell .i-p{order:5; text-align:right; padding-right:11px}
+  .item-cell input{min-height:36px; padding:8px; font-size:14.5px; border-width:1px; border-radius:var(--r6)}
   .item-amount .v{
     order:6; text-align:right;
-    font-size:16px; padding-right:4px;
+    font-size:14.5px; font-weight:600; padding-right:4px;
   }
   .item-del{order:7; position:static; width:38px; height:38px; font-size:17px}
   .item-top{padding-right:0}
 
-  .add-item{min-height:46px; font-size:15px; margin-top:4px}
+  .add-item{min-height:38px; font-size:14px; margin-top:6px; border-width:1.5px; border-radius:var(--r6)}
   .kbd-hint{
     display:block; margin-top:10px;
     font-size:13px; color:var(--mute);
@@ -1192,10 +1262,8 @@ kbd{
   .lcard-meta{grid-area:meta; margin-bottom:0}
   .lcard-acts{grid-area:acts; flex-wrap:nowrap}
   .lcard-acts .btn{flex:0 0 auto}
-  .lcard{padding:14px 18px 14px 22px}
-  .lcard-name{font-size:16px}
-  .lcard-amt{font-size:18px}
-  .badge{margin-top:0; margin-left:10px}
+  .lcard{padding:13px 16px 13px 19px; margin-bottom:6px}
+  .badge{margin-top:0}
 
   /* Job rows keep the description on its own line, so give them a third row
      rather than stacking it on top of the name. */
@@ -1230,17 +1298,22 @@ kbd{
    ========================================================================== */
 
 .subnav{
-  display:flex; gap:4px; padding:4px;
-  background:var(--card); border:1.5px solid var(--brd);
-  border-radius:var(--r12); margin-bottom:16px;
+  display:flex; gap:26px;
+  border-bottom:1px solid var(--brd);
+  margin-bottom:20px;
 }
 .subnav button{
-  flex:1; min-height:46px; border:none; border-radius:9px;
-  background:transparent; color:var(--sub);
-  font-size:15px; font-weight:700; cursor:pointer;
+  position:relative;
+  min-height:42px; padding:0 2px 11px;
+  border:none; background:transparent;
+  color:var(--mute); font-size:15px; font-weight:550;
+  cursor:pointer;
 }
-.subnav button.on{background:var(--ink2); color:#fff}
-.subnav button:active{transform:scale(.98)}
+.subnav button.on{color:var(--ink); font-weight:600}
+.subnav button.on::after{
+  content:''; position:absolute; left:0; right:0; bottom:-1px;
+  height:2px; background:var(--red); border-radius:2px 2px 0 0;
+}
 
 /* ==========================================================================
    SHEET HEADER (form + info sheets)
@@ -1530,4 +1603,172 @@ kbd{
 
   .jsec{font-size:15.5px}
   .jlines{max-width:none}
+}
+
+/* ==========================================================================
+   ICON-ERA ADJUSTMENTS
+   Components sized for emoji need different treatment once they hold a
+   stroked SVG that inherits the text colour.
+   ========================================================================== */
+
+.sheet-ico{
+  background:var(--bg); border:1px solid var(--brd);
+  color:var(--ink3);
+  border-radius:var(--r8);
+  width:40px; height:40px;
+}
+.sheet-ico.danger{background:var(--red-s); border-color:var(--red-b); color:var(--red)}
+.sheet-ico.warn  {background:var(--amb-s); border-color:var(--amb-b); color:var(--amb)}
+.sheet-ico.wa    {background:#eafaf0; border-color:#bfe8cd; color:var(--wa)}
+
+.method-ico{display:flex; align-items:center; justify-content:center; color:inherit}
+.pay-ico{
+  display:flex; align-items:center; justify-content:center;
+  width:30px; height:30px; flex-shrink:0;
+  color:var(--sub); background:var(--bg);
+  border-radius:var(--r6);
+}
+
+.day-row-l{display:inline-flex; align-items:center; gap:9px}
+.day-row-l .ic{color:var(--mute)}
+
+.jline-x,.search-clear{
+  display:flex; align-items:center; justify-content:center;
+  color:var(--mute);
+}
+
+/* Plate chip: a registration plate, not a shouty tag. */
+.plate{
+  background:var(--bg); color:var(--ink);
+  border:1px solid var(--brd2);
+  font-size:12px; font-weight:600; letter-spacing:.6px;
+  padding:2px 7px; border-radius:var(--r4);
+  font-variant-numeric:tabular-nums;
+}
+
+/* Stock level: a number with a status edge, not a coloured lozenge. */
+.stock-pill{
+  min-width:44px; text-align:center;
+  padding:5px 10px; border-radius:var(--r6);
+  background:var(--bg); color:var(--ink);
+  border:1px solid var(--brd2);
+  font-size:16px; font-weight:600; flex-shrink:0;
+}
+.stock-pill.low{background:var(--amb-s); color:var(--amb); border-color:var(--amb-b)}
+.stock-pill.out{background:var(--red-s); color:var(--red); border-color:var(--red-b)}
+
+/* Line number reads as a row marker, not a badge. */
+.item-num{
+  background:var(--bg); color:var(--sub);
+  border-radius:var(--r4);
+  font-weight:550; font-size:13px;
+  width:26px; height:26px;
+}
+
+.type-toggle{
+  border-width:1px; border-radius:var(--r6);
+  font-weight:550; letter-spacing:.2px;
+  text-transform:none; font-size:13.5px;
+  color:var(--sub);
+}
+.type-toggle.labour{background:var(--amb-s); color:var(--amb); border-color:var(--amb-b)}
+
+.add-item{border-width:1.5px; border-radius:var(--r8); font-weight:500}
+
+/* Job card internals */
+.jlines{border-radius:var(--r6); border-width:1px}
+.jline{font-size:14.5px}
+.jline-d{font-weight:450}
+.jline-a{font-weight:600}
+.jline.labour{background:var(--amb-s)}
+.jsec{
+  background:transparent; padding:0 0 10px; margin-bottom:0;
+  border-radius:0; font-size:14.5px;
+}
+.jsec-l{
+  font-size:11.5px; font-weight:500; letter-spacing:0;
+  text-transform:none; color:var(--mute); margin-bottom:2px;
+}
+.jmeta{font-size:13.5px}
+.jmeta span{display:inline-flex; align-items:center; gap:5px}
+.jmeta .ic{color:var(--mute)}
+.jtotals{font-size:13.5px}
+.jtotals strong{font-weight:600}
+.jtotals .jtotal strong{font-size:17px}
+
+/* Day net: a statement line, not a banner shout. */
+.day-net{
+  font-size:13px; font-weight:500; letter-spacing:.2px;
+  text-transform:none;
+  border-radius:0 0 var(--r10) var(--r10);
+  padding:16px 18px;
+}
+.day-net strong{font-size:23px; font-weight:600}
+.day-net.neg{background:var(--ink2); color:#fff}
+.day-net.neg strong{color:#fb7185}
+
+.due-banner{
+  border-width:1px; border-radius:var(--r8);
+  font-size:14px; font-weight:450;
+}
+.due-banner strong{font-size:18px; font-weight:600}
+
+.method-btn{
+  border-width:1px; border-radius:var(--r8);
+  min-height:66px; font-size:13.5px; font-weight:500;
+}
+.method-btn.on{font-weight:550}
+
+.toast{
+  border-radius:var(--r8); font-size:15px; font-weight:500;
+  box-shadow:0 8px 24px rgba(16,24,40,.18);
+}
+.install-bar{border-radius:var(--r8)}
+.install-bar .txt{font-weight:450}
+
+.lcard-note{
+  background:transparent; border-left:2px solid var(--brd2);
+  border-radius:0; padding:2px 0 2px 10px;
+  font-style:normal; font-size:13.5px;
+}
+
+.empty-t{font-weight:600; font-size:17px}
+.empty-s{font-size:14.5px}
+.empty svg{opacity:.2}
+
+.sticky-total .l{font-weight:500; letter-spacing:.4px; text-transform:none; font-size:11.5px}
+.sticky-total .v{font-weight:600}
+
+.trow{font-size:15px}
+.trow-l{font-weight:450}
+.trow-v{font-weight:600}
+.trow input{border-width:1px; border-radius:var(--r6); font-weight:500}
+
+.buy-qty,.buy-cost{border-width:1px; border-radius:var(--r6); font-weight:500}
+.buy-head{border-bottom-width:1px; font-weight:500; text-transform:none; font-size:11.5px; letter-spacing:0}
+
+.segment{border-radius:var(--r8); border-width:1px}
+.segment button{border-radius:var(--r6); font-weight:500}
+.segment button.on{font-weight:550}
+
+.wa-step{border-radius:var(--r8); background:var(--bg)}
+.wa-step-num{font-size:12px; font-weight:550; letter-spacing:.2px; text-transform:none; color:var(--sub)}
+.wa-hint{font-size:13.5px}
+
+.sheet-title{font-weight:600; font-size:19px}
+.sheet-msg{font-size:15px; font-weight:450}
+.sheet{border-radius:var(--r16) var(--r16) 0 0}
+
+.hist-row-top{font-weight:450}
+.hist-row-top strong{font-weight:600}
+
+@media screen and (min-width:1024px){
+  .sheet-ico{width:38px; height:38px}
+  .pay-ico{width:28px; height:28px}
+  .method-btn{min-height:58px; font-size:13px}
+  .jline{font-size:14px}
+  .stock-pill{font-size:15px}
+  .lcard-ico{width:34px; height:34px}
+  .sheet{border-radius:var(--r12)}
+  .install-bar .txt{font-size:13.5px}
 }

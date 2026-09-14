@@ -42,7 +42,7 @@ function editPart(id){
   var p = id ? byId(gPart(), id) : null;
   formSheet({
     title: p ? 'Edit Part' : 'New Part',
-    icon: '📦',
+    icon:'box',
     body: partForm(p),
     confirmText: p ? 'Save Changes' : 'Add Part',
     onConfirm: function(){
@@ -74,7 +74,7 @@ function delPart(id){
   var p = byId(gPart(), id);
   if(!p) return;
   confirmSheet({
-    icon:'🗑️', title:'Delete ' + p.name + '?', danger:true, confirmText:'Delete',
+    icon:'trash', title:'Delete ' + p.name + '?', danger:true, confirmText:'Delete',
     msg:'It will be removed from the inventory. Bills and job cards that already used it are not changed.',
     onConfirm: function(){
       sPart(gPart().filter(function(x){ return String(x.id) !== String(id); }));
@@ -91,7 +91,7 @@ function stockSheet(id){
   if(!p) return;
   formSheet({
     title: 'Stock — ' + p.name,
-    icon: '📦',
+    icon:'box',
     body:
       '<div class="stock-now">In stock now <strong>' + (parseFloat(p.stock) || 0) + '</strong></div>' +
       '<div class="fields">'+
@@ -165,7 +165,7 @@ function renderParts(){
 
     return '<div class="lcard'+(isOut ? ' overdue' : isLow ? ' unpaid' : '')+'" data-id="'+esc(p.id)+'">'+
       '<div class="lcard-flex">'+
-        '<div class="lcard-ico">📦</div>'+
+        '<div class="lcard-ico">'+ic('box',18)+'</div>'+
         '<div>'+
           '<div class="lcard-head" style="margin-bottom:4px">'+
             '<div class="lcard-name">'+esc(p.name)+
@@ -181,12 +181,12 @@ function renderParts(){
             (p.cost  ? '<span>Cost '+fm(p.cost,'USD')+'</span>' : '')+
             (margin > 0 ? '<span style="color:var(--grn);font-weight:700">+'+fm(margin,'USD')+'</span>' : '')+
             (min ? '<span>Alert at '+min+'</span>' : '')+
-            (sup ? '<span>🏪 '+esc(sup.name)+'</span>' : '')+
+            (sup ? '<span>'+ic('store',14)+esc(sup.name)+'</span>' : '')+
           '</div>'+
           '<div class="lcard-acts">'+
-            '<button class="btn btn-dark btn-sm" type="button" data-act="part-stock">Stock ±</button>'+
-            '<button class="btn btn-ghost btn-sm btn-icon" type="button" data-act="part-edit" aria-label="Edit">✏️</button>'+
-            '<button class="btn btn-danger-ghost btn-sm btn-icon" type="button" data-act="part-del" aria-label="Delete">✕</button>'+
+            '<button class="btn btn-ghost btn-sm" type="button" data-act="part-stock">Adjust stock</button>'+
+            '<button class="btn btn-ghost btn-sm btn-icon" type="button" data-act="part-edit" aria-label="Edit">'+ic('pencil',15)+'</button>'+
+            '<button class="btn btn-danger-ghost btn-sm btn-icon" type="button" data-act="part-del" aria-label="Delete">'+ic('trash',15)+'</button>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -211,7 +211,7 @@ function editSupplier(id){
   var s = id ? byId(gSup(), id) : null;
   formSheet({
     title: s ? 'Edit Supplier' : 'New Supplier',
-    icon: '🏪',
+    icon:'store',
     body: supForm(s),
     confirmText: s ? 'Save Changes' : 'Add Supplier',
     onConfirm: function(){
@@ -239,7 +239,7 @@ function delSupplier(id){
   if(!s) return;
   var owed = supplierBalance(id);
   confirmSheet({
-    icon:'🗑️', title:'Delete ' + s.name + '?', danger:true, confirmText:'Delete',
+    icon:'trash', title:'Delete ' + s.name + '?', danger:true, confirmText:'Delete',
     msg: owed > 0
       ? 'There is still ' + fmtV(owed) + ' outstanding on their purchases. Deleting them does not clear it — the purchase records stay.'
       : 'Their purchase history stays on record.',
@@ -274,7 +274,7 @@ function purchaseSheet(supplierId){
 
   formSheet({
     title: 'Book in stock',
-    icon: '🚚',
+    icon:'truck',
     sub: 'from ' + sup.name,
     body:
       '<div class="fields">'+
@@ -367,14 +367,14 @@ function showSupplierHistory(id){
           (p.note ? '<div class="hist-row-sub">'+esc(p.note)+'</div>' : '')+
           '<button class="btn btn-sm '+(p.paid ? 'btn-ghost' : 'btn-red')+'" type="button" '+
             'data-act="purchase-paid" style="margin-top:8px">'+
-            (p.paid ? '✓ Paid' : 'Mark as paid')+'</button>'+
+            (p.paid ? 'Paid' : 'Mark as paid')+'</button>'+
         '</div>';
       }).join('')
     : '<div class="hist-row"><div class="hist-row-sub">No purchases recorded yet.</div></div>';
 
   var owed = supplierBalance(id);
   infoSheet({
-    icon:'🏪',
+    icon:'store',
     title: s.name,
     sub: owed > 0 ? 'Outstanding: ' + fmtV(owed) : 'Nothing outstanding',
     body: body,
@@ -428,14 +428,14 @@ function renderSuppliers(){
 
     return '<div class="lcard'+(owed > 0 ? ' unpaid' : '')+'" data-id="'+esc(s.id)+'">'+
       '<div class="lcard-flex">'+
-        '<div class="lcard-ico">🏪</div>'+
+        '<div class="lcard-ico">'+ic('store',18)+'</div>'+
         '<div>'+
           '<div class="lcard-head" style="margin-bottom:4px">'+
             '<div class="lcard-name">'+esc(s.name)+'</div>'+
             '<div class="lcard-amt'+(owed > 0 ? ' red' : '')+'">'+
               (owed > 0 ? fmtV(owed) : '<span style="color:var(--grn)">Clear</span>')+'</div>'+
           '</div>'+
-          (s.phone ? '<div class="lcard-desc">📞 '+esc(s.phone)+'</div>' : '')+
+          (s.phone ? '<div class="lcard-desc">'+ic('phone',15)+esc(s.phone)+'</div>' : '')+
           (s.supplies ? '<div class="lcard-desc" style="color:var(--mute);font-weight:500">'+esc(s.supplies)+'</div>' : '')+
           '<div class="lcard-meta">'+
             '<span><span class="hi">'+ps.length+'</span> purchase'+(ps.length !== 1 ? 's' : '')+'</span>'+
@@ -444,10 +444,10 @@ function renderSuppliers(){
           '</div>'+
           (s.notes ? '<div class="lcard-note">'+esc(s.notes)+'</div>' : '')+
           '<div class="lcard-acts">'+
-            '<button class="btn btn-red btn-sm" type="button" data-act="sup-buy">🚚 Book in Stock</button>'+
-            '<button class="btn btn-ghost btn-sm" type="button" data-act="sup-hist">Purchases →</button>'+
-            '<button class="btn btn-ghost btn-sm btn-icon" type="button" data-act="sup-edit" aria-label="Edit">✏️</button>'+
-            '<button class="btn btn-danger-ghost btn-sm btn-icon" type="button" data-act="sup-del" aria-label="Delete">✕</button>'+
+            '<button class="btn btn-red btn-sm" type="button" data-act="sup-buy">'+ic('truck',15)+'Book in Stock</button>'+
+            '<button class="btn btn-ghost btn-sm" type="button" data-act="sup-hist">Purchases'+ic('arrowR',15)+'</button>'+
+            '<button class="btn btn-ghost btn-sm btn-icon" type="button" data-act="sup-edit" aria-label="Edit">'+ic('pencil',15)+'</button>'+
+            '<button class="btn btn-danger-ghost btn-sm btn-icon" type="button" data-act="sup-del" aria-label="Delete">'+ic('trash',15)+'</button>'+
           '</div>'+
         '</div>'+
       '</div>'+

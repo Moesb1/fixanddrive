@@ -7,7 +7,29 @@ laptop and as a touch app on a phone, and runs with no network either way.
 
 **Live:** https://moesb1.github.io/fixanddrive/
 
-## On the laptop
+## Setting it up on the laptop (Windows)
+
+Run **`setup-windows.bat`** once on the laptop. Download it from
+<https://moesb1.github.io/fixanddrive/setup-windows.bat>, then double-click it and
+press `1`. Windows may warn about an unrecognised file — choose *More info* →
+*Run anyway*; it is a plain text script and you can read it first.
+
+It does three things:
+
+- puts a **Fix and Drive** icon on the desktop, with the proper car logo
+- opens the app in **its own window** — no address bar, no tabs, nothing to get
+  lost in
+- makes it **open by itself every time he signs in**
+
+The laptop stays completely normal otherwise: the window minimises and closes like
+anything else, and the rest of the machine is untouched. Nothing is installed —
+the script only creates two shortcuts, and pressing `2` removes them again.
+
+If the script will not run, the manual route is the same thing in three steps:
+open the site in Chrome, menu → *Install*, then in `chrome://apps` right-click
+Fix & Drive → *Start app when you sign in*.
+
+### On other machines
 
 Just open the link. Chrome and Edge will also offer to install it (the ⊕ in the
 address bar, or menu → *Install*), which gives it its own window and a dock/taskbar
@@ -136,10 +158,12 @@ jobs.js      digital job cards
 money.js     payments and the daily register
 sw.js        service worker: precaches the shell, serves cache-first
 manifest.json
-icons/       app icons (192, 512, maskable, apple-touch)
+icons.js     the SVG icon set, and the category/method icon maps
+icons/       app icons (192, 512, maskable, apple-touch, and .ico for Windows)
+setup-windows.bat  one-click laptop setup (desktop icon + opens at sign-in)
 ```
 
-`data.js` loads first (everything else depends on its accessors), then `app.js`
+`icons.js` loads first, then `data.js` (everything depends on its accessors), then `app.js`
 (which owns the shared `formSheet` / `infoSheet` / `fieldText` helpers), then the
 four feature modules. **A new file must be added to `PRECACHE` in `sw.js`** or it
 will not be there offline.
@@ -175,6 +199,13 @@ A few layout notes worth knowing before editing the CSS:
 - Every add/edit form in the app is built from `fieldText()` and rendered into
   the one shared `formSheet`. An `onConfirm` returning `false` keeps the sheet
   open, which is how validation failures report back.
+- **No emoji anywhere in the interface.** They carry their own colour and style
+  and render differently on every machine, which is what made the app read as a
+  toy. Icons come from `ic('name')` in `icons.js` — stroked SVG on a 24px grid
+  that inherits `currentColor`.
+- Dates are handled with `todayISO()` and `addDays()`, never `toISOString()`.
+  Lebanon is UTC+2/+3, so for part of every day the UTC date is yesterday's —
+  enough to file a payment on the wrong day and be miserable to track down.
 
 To test locally:
 

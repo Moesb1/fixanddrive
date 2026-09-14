@@ -44,7 +44,7 @@ var MIK = 'fixdrive_migrated';
    ────────────────────────────────────────────────────────────────────────── */
 
 var PAY_METHODS = ['Cash', 'Whish', 'Bank Transfer', 'Card'];
-var PAY_ICONS   = { 'Cash':'💵', 'Whish':'📲', 'Bank Transfer':'🏦', 'Card':'💳' };
+/* The glyphs themselves live in icons.js (METHOD_ICON); these are the labels. */
 
 var PART_CATEGORIES = [
   'Oil Filter','Air Filter','Cabin Filter','Fuel Filter',

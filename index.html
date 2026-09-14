@@ -84,9 +84,7 @@
 
   <div class="card">
     <div class="sect-head">
-      <div class="sect-ico">
-        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
-      </div>
+      <div class="sect-ico" data-ic="receipt"></div>
       <span class="sect-title">Invoice Details</span>
     </div>
     <div class="fields">
@@ -107,9 +105,7 @@
 
   <div class="card">
     <div class="sect-head">
-      <div class="sect-ico">
-        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      </div>
+      <div class="sect-ico" data-ic="user"></div>
       <span class="sect-title">Customer</span>
     </div>
     <div class="fields">
@@ -130,9 +126,7 @@
 
   <div class="card">
     <div class="sect-head">
-      <div class="sect-ico">
-        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h13l4 4v4a2 2 0 01-2 2h-1"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
-      </div>
+      <div class="sect-ico" data-ic="car"></div>
       <span class="sect-title">Vehicle</span>
     </div>
     <div class="fields">
@@ -153,9 +147,7 @@
 
   <div class="card">
     <div class="sect-head">
-      <div class="sect-ico">
-        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-      </div>
+      <div class="sect-ico" data-ic="wrench"></div>
       <span class="sect-title">Services &amp; Parts</span>
     </div>
 
@@ -182,15 +174,13 @@
 
   <div class="card">
     <div class="sect-head">
-      <div class="sect-ico">
-        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-      </div>
+      <div class="sect-ico" data-ic="dollar"></div>
       <span class="sect-title">Totals</span>
     </div>
     <div class="totals">
       <div class="totals-body">
         <div class="trow"><span class="trow-l">Subtotal</span><span class="trow-v" id="c-sub">—</span></div>
-        <div class="trow labour"><span class="trow-l">↳ Labour</span><span class="trow-v" id="c-lab">—</span></div>
+        <div class="trow labour"><span class="trow-l">Labour</span><span class="trow-v" id="c-lab">—</span></div>
         <div class="trow">
           <span class="trow-l">Discount</span>
           <input type="number" id="discount" value="0" min="0" step="0.01" inputmode="decimal">
@@ -209,9 +199,7 @@
 
   <div class="card">
     <div class="sect-head">
-      <div class="sect-ico">
-        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      </div>
+      <div class="sect-ico" data-ic="note"></div>
       <span class="sect-title">Notes</span>
     </div>
     <div class="fields">
@@ -223,12 +211,12 @@
 
   <div class="btn-stack" id="bill-actions">
     <button class="btn btn-red btn-block" type="button" id="save-bill-btn">
-      <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
       Save Bill<kbd class="k-save"></kbd>
     </button>
     <div class="btn-pair">
       <button class="btn btn-dark" type="button" id="print-bill-btn">
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Print<kbd class="k-print"></kbd>
       </button>
       <button class="btn btn-wa" type="button" id="wa-bill-btn">
@@ -237,7 +225,7 @@
       </button>
     </div>
     <button class="btn btn-ghost btn-block" type="button" id="clear-form-btn">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
       Clear Form
     </button>
   </div>
@@ -266,17 +254,17 @@
 
   <div class="toolbar">
     <div class="search-wrap">
-      <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <input type="search" id="srch" placeholder="Customer, car, plate, invoice no." autocomplete="off">
-      <button class="search-clear" type="button" data-clears="srch" aria-label="Clear search">✕</button>
+      <button class="search-clear" type="button" data-clears="srch" aria-label="Clear search"></button>
     </div>
     <div class="toolbar-acts">
       <button class="btn btn-ghost btn-sm" type="button" id="export-bills-btn">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Backup
       </button>
       <button class="btn btn-ghost btn-sm" type="button" id="import-bills-btn">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         Restore
       </button>
     </div>
@@ -307,9 +295,7 @@
 
   <div class="card">
     <div class="sect-head">
-      <div class="sect-ico">
-        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      </div>
+      <div class="sect-ico" data-ic="plus"></div>
       <span class="sect-title">Add Expense</span>
     </div>
     <div class="fields">
@@ -317,16 +303,16 @@
         <label for="exp-cat">Category</label>
         <select id="exp-cat">
           <option value="">Select category...</option>
-          <option value="Rent">🏠 Rent</option>
-          <option value="Utilities">💡 Utilities</option>
-          <option value="Tools &amp; Equipment">🔧 Tools &amp; Equipment</option>
-          <option value="Parts Purchase">📦 Parts Purchase</option>
-          <option value="Salaries">👥 Salaries</option>
-          <option value="Fuel">⛽ Fuel</option>
-          <option value="Insurance">🛡️ Insurance</option>
-          <option value="Maintenance">🔩 Maintenance</option>
-          <option value="Advertising">📢 Advertising</option>
-          <option value="Other">📋 Other</option>
+          <option value="Rent">Rent</option>
+          <option value="Utilities">Utilities</option>
+          <option value="Tools &amp; Equipment">Tools &amp; Equipment</option>
+          <option value="Parts Purchase">Parts Purchase</option>
+          <option value="Salaries">Salaries</option>
+          <option value="Fuel">Fuel</option>
+          <option value="Insurance">Insurance</option>
+          <option value="Maintenance">Maintenance</option>
+          <option value="Advertising">Advertising</option>
+          <option value="Other">Other</option>
         </select>
       </div>
       <div class="field">
@@ -348,7 +334,7 @@
     </div>
     <div class="form-actions">
       <button class="btn btn-red btn-block" type="button" id="save-exp-btn">
-        <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
         Add Expense
       </button>
     </div>
@@ -356,14 +342,12 @@
 
   <div class="toolbar">
     <div class="sect-head" style="margin-bottom:0">
-      <div class="sect-ico">
-        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
-      </div>
+      <div class="sect-ico" data-ic="receipt"></div>
       <span class="sect-title">Expense History</span>
     </div>
     <div class="toolbar-acts">
       <button class="btn btn-ghost btn-sm" type="button" id="export-exp-btn">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Export
       </button>
     </div>
@@ -371,16 +355,16 @@
 
   <div class="pill-row" id="exp-cat-pills">
     <button class="pill on" type="button" data-cat="">All</button>
-    <button class="pill" type="button" data-cat="Rent">🏠 Rent</button>
-    <button class="pill" type="button" data-cat="Utilities">💡 Utilities</button>
-    <button class="pill" type="button" data-cat="Tools &amp; Equipment">🔧 Tools</button>
-    <button class="pill" type="button" data-cat="Parts Purchase">📦 Parts</button>
-    <button class="pill" type="button" data-cat="Salaries">👥 Salaries</button>
-    <button class="pill" type="button" data-cat="Fuel">⛽ Fuel</button>
-    <button class="pill" type="button" data-cat="Insurance">🛡️ Insurance</button>
-    <button class="pill" type="button" data-cat="Maintenance">🔩 Maint.</button>
-    <button class="pill" type="button" data-cat="Advertising">📢 Ads</button>
-    <button class="pill" type="button" data-cat="Other">📋 Other</button>
+    <button class="pill" type="button" data-cat="Rent">Rent</button>
+    <button class="pill" type="button" data-cat="Utilities">Utilities</button>
+    <button class="pill" type="button" data-cat="Tools &amp; Equipment">Tools</button>
+    <button class="pill" type="button" data-cat="Parts Purchase">Parts</button>
+    <button class="pill" type="button" data-cat="Salaries">Salaries</button>
+    <button class="pill" type="button" data-cat="Fuel">Fuel</button>
+    <button class="pill" type="button" data-cat="Insurance">Insurance</button>
+    <button class="pill" type="button" data-cat="Maintenance">Maintenance</button>
+    <button class="pill" type="button" data-cat="Advertising">Advertising</button>
+    <button class="pill" type="button" data-cat="Other">Other</button>
   </div>
 
   <div id="exp-sum"></div>
@@ -402,12 +386,12 @@
 
   <div class="toolbar">
     <div class="search-wrap">
-      <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <input type="search" id="cust-srch" placeholder="Name, phone, address" autocomplete="off">
-      <button class="search-clear" type="button" data-clears="cust-srch" aria-label="Clear search">✕</button>
+      <button class="search-clear" type="button" data-clears="cust-srch" aria-label="Clear search"></button>
     </div>
     <div class="toolbar-acts">
-      <button class="btn btn-red btn-sm" type="button" id="add-cust-btn">＋ Add Customer</button>
+      <button class="btn btn-red btn-sm" type="button" id="add-cust-btn">Add Customer</button>
     </div>
   </div>
 
@@ -429,12 +413,12 @@
 
   <div class="toolbar">
     <div class="search-wrap">
-      <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <input type="search" id="veh-srch" placeholder="Plate, make, model, owner, VIN" autocomplete="off">
-      <button class="search-clear" type="button" data-clears="veh-srch" aria-label="Clear search">✕</button>
+      <button class="search-clear" type="button" data-clears="veh-srch" aria-label="Clear search"></button>
     </div>
     <div class="toolbar-acts">
-      <button class="btn btn-red btn-sm" type="button" id="add-veh-btn">＋ Add Vehicle</button>
+      <button class="btn btn-red btn-sm" type="button" id="add-veh-btn">Add Vehicle</button>
     </div>
   </div>
 
@@ -461,7 +445,7 @@
       <button class="pill" type="button" data-filter="all">All</button>
     </div>
     <div class="toolbar-acts">
-      <button class="btn btn-red btn-sm" type="button" id="add-job-btn">＋ New Job Card</button>
+      <button class="btn btn-red btn-sm" type="button" id="add-job-btn">New Job Card</button>
     </div>
   </div>
 
@@ -484,12 +468,12 @@
 
   <div class="toolbar">
     <div class="search-wrap">
-      <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <input type="search" id="part-srch" placeholder="Part name, category, code" autocomplete="off">
-      <button class="search-clear" type="button" data-clears="part-srch" aria-label="Clear search">✕</button>
+      <button class="search-clear" type="button" data-clears="part-srch" aria-label="Clear search"></button>
     </div>
     <div class="toolbar-acts">
-      <button class="btn btn-red btn-sm" type="button" id="add-part-btn">＋ Add Part</button>
+      <button class="btn btn-red btn-sm" type="button" id="add-part-btn">Add Part</button>
     </div>
   </div>
 
@@ -516,12 +500,12 @@
 
   <div class="toolbar">
     <div class="search-wrap">
-      <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <input type="search" id="sup-srch" placeholder="Supplier name, phone, what they supply" autocomplete="off">
-      <button class="search-clear" type="button" data-clears="sup-srch" aria-label="Clear search">✕</button>
+      <button class="search-clear" type="button" data-clears="sup-srch" aria-label="Clear search"></button>
     </div>
     <div class="toolbar-acts">
-      <button class="btn btn-red btn-sm" type="button" id="add-sup-btn">＋ Add Supplier</button>
+      <button class="btn btn-red btn-sm" type="button" id="add-sup-btn">Add Supplier</button>
     </div>
   </div>
 
@@ -537,14 +521,14 @@
   </div>
 
   <div class="day-nav">
-    <button class="btn btn-ghost btn-icon" type="button" id="day-prev" aria-label="Previous day">‹</button>
+    <button class="btn btn-ghost btn-icon" type="button" id="day-prev" aria-label="Previous day"></button>
     <div class="day-label" id="day-label">Today</div>
-    <button class="btn btn-ghost btn-icon" type="button" id="day-next" aria-label="Next day">›</button>
+    <button class="btn btn-ghost btn-icon" type="button" id="day-next" aria-label="Next day"></button>
     <button class="btn btn-ghost btn-sm" type="button" id="day-today">Today</button>
   </div>
 
   <button class="btn btn-red btn-block" type="button" id="add-pay-btn" style="margin-bottom:16px">
-    💵 Record a Payment
+    Record a Payment
   </button>
 
   <div id="day-body"></div>
@@ -574,25 +558,25 @@
   </div>
 
   <button class="nav-btn on" type="button" data-group="bills">
-    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg>
+    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg>
     <span>Bills</span>
   </button>
   <button class="nav-btn" type="button" data-group="jobs">
-    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
     <span>Jobs</span>
     <span class="nav-dot" id="jobs-dot">0</span>
   </button>
   <button class="nav-btn" type="button" data-group="people">
-    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
     <span>People</span>
   </button>
   <button class="nav-btn" type="button" data-group="shop">
-    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>
+    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>
     <span>Shop</span>
     <span class="nav-dot amber" id="stock-dot">0</span>
   </button>
   <button class="nav-btn" type="button" data-group="money">
-    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+    <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
     <span>Money</span>
   </button>
 
@@ -620,14 +604,14 @@
 <div class="sheet-ov" id="wa-sheet">
   <div class="sheet">
     <div class="sheet-grip"></div>
-    <div class="sheet-ico wa">📱</div>
+    <div class="sheet-ico wa" id="wa-sheet-ico"></div>
     <div class="sheet-title">Send Invoice on WhatsApp</div>
     <div class="sheet-msg" id="wa-info" style="margin-bottom:18px">—</div>
 
     <div class="wa-step">
       <div class="wa-step-num">Step 1 — Save the invoice as a PDF</div>
       <button class="btn btn-dark btn-block" type="button" id="wa-print-btn">
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Open Print Dialog
       </button>
       <div class="wa-hint only-touch">Choose <strong>Save as PDF</strong> in the print screen, then Save. The file goes to your Downloads.</div>
@@ -640,8 +624,8 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.775.462 3.448 1.27 4.906L2 22l5.237-1.242A9.953 9.953 0 0012 22c5.522 0 10-4.477 10-10S17.521 2 11.999 2zm.001 18a7.96 7.96 0 01-4.073-1.118l-.292-.174-3.108.736.773-3.03-.19-.31A7.96 7.96 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>
         Open WhatsApp Chat →
       </a>
-      <div class="wa-hint only-touch">In the chat tap the <strong>📎 clip</strong>, pick <strong>Document</strong>, and choose the PDF you just saved.</div>
-      <div class="wa-hint only-desk">WhatsApp Web opens in a new tab. Click the <strong>📎 clip</strong>, choose <strong>Document</strong>, and pick the PDF — or just drag the file into the chat.</div>
+      <div class="wa-hint only-touch">In the chat tap the <strong>clip</strong>, pick <strong>Document</strong>, and choose the PDF you just saved.</div>
+      <div class="wa-hint only-desk">WhatsApp Web opens in a new tab. Click the <strong>clip</strong>, choose <strong>Document</strong>, and pick the PDF — or just drag the file into the chat.</div>
     </div>
 
     <div class="sheet-acts" style="margin-top:6px">
@@ -655,7 +639,7 @@
   <div class="sheet">
     <div class="sheet-grip"></div>
     <div class="sheet-head">
-      <div class="sheet-ico warn" id="form-sheet-ico">✏️</div>
+      <div class="sheet-ico warn" id="form-sheet-ico"></div>
       <div>
         <div class="sheet-title" id="form-sheet-title"></div>
         <div class="sheet-sub hidden" id="form-sheet-sub"></div>
@@ -674,7 +658,7 @@
   <div class="sheet">
     <div class="sheet-grip"></div>
     <div class="sheet-head">
-      <div class="sheet-ico warn" id="info-sheet-ico">ℹ️</div>
+      <div class="sheet-ico warn" id="info-sheet-ico"></div>
       <div>
         <div class="sheet-title" id="info-sheet-title"></div>
         <div class="sheet-sub hidden" id="info-sheet-sub"></div>
@@ -690,6 +674,7 @@
 <!-- ══ PRINTED INVOICE (filled in by app.js, hidden on screen) ══ -->
 <div id="print-root" aria-hidden="true"></div>
 
+<script src="icons.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script src="people.js"></script>

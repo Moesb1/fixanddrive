@@ -22,11 +22,8 @@ var START_ITEMS = 4;      // blank rows the form opens with on a phone
 var START_ITEMS_WIDE = 6; // ...and on a laptop, where they cost no scrolling
 var PRINT_ROWS  = 7;      // minimum rows drawn on the printed A4 sheet
 
-var EXP_ICONS = {
-  'Rent':'🏠','Utilities':'💡','Tools & Equipment':'🔧','Parts Purchase':'📦',
-  'Salaries':'👥','Fuel':'⛽','Insurance':'🛡️','Maintenance':'🔩',
-  'Advertising':'📢','Other':'📋'
-};
+/* Category glyphs come from icons.js (CAT_ICON); these are just the colours
+   that tint them, which is what makes a long expense list scannable. */
 var EXP_COLORS = {
   'Rent':'#6366f1','Utilities':'#0ea5e9','Tools & Equipment':'#14b8a6',
   'Parts Purchase':'#8b5cf6','Salaries':'#f59e0b','Fuel':'#ef4444',
@@ -61,9 +58,23 @@ function fd(d){
   return p.length === 3 ? p[2]+'/'+p[1]+'/'+p[0] : String(d);
 }
 
-function todayISO(){
-  var n = new Date();
-  return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+function isoOf(d){
+  return d.getFullYear()+'-'+
+         String(d.getMonth()+1).padStart(2,'0')+'-'+
+         String(d.getDate()).padStart(2,'0');
+}
+
+function todayISO(){ return isoOf(new Date()); }
+
+/* Date arithmetic stays entirely in local time. Going through toISOString()
+   would work here by luck, but Lebanon is UTC+2/+3, so at some hours the UTC
+   date is yesterday's — the kind of thing that files a payment on the wrong
+   day once a night and is miserable to find later. */
+function addDays(iso, n){
+  var p = String(iso).split('-');
+  var d = new Date(parseInt(p[0],10), parseInt(p[1],10) - 1, parseInt(p[2],10));
+  d.setDate(d.getDate() + n);
+  return isoOf(d);
 }
 
 /* ══════════════════════════ STORAGE ══════════════════════════ */
@@ -179,7 +190,7 @@ var _confirmCb = null;
 function confirmSheet(opts){
   var ov = $('confirm-sheet');
   $('confirm-ico').className = 'sheet-ico ' + (opts.danger ? 'danger' : 'warn');
-  $('confirm-ico').textContent = opts.icon || (opts.danger ? '🗑️' : '⚠️');
+  $('confirm-ico').innerHTML = ic(opts.icon || (opts.danger ? 'trash' : 'alert'), 22);
   $('confirm-title').textContent = opts.title || 'Are you sure?';
   $('confirm-msg').textContent   = opts.msg || '';
   var ok = $('confirm-ok');
@@ -568,14 +579,12 @@ function autoInvNo(){
 function autodue(){
   var d = val('inv-date');
   if(!d) return;
-  var dt = new Date(d);
-  dt.setDate(dt.getDate() + 30);
-  setVal('inv-due', dt.toISOString().split('T')[0]);
+  setVal('inv-due', addDays(d, 30));
 }
 
 function clearForm(){
   confirmSheet({
-    icon:'🧹', title:'Clear the form?',
+    icon:'trash', title:'Clear the form?',
     msg:'Everything you typed here will be wiped. Saved bills are not affected.',
     confirmText:'Clear', danger:false,
     onConfirm: function(){
@@ -652,7 +661,7 @@ function dupeBill(id){
 
 function delBill(id){
   confirmSheet({
-    icon:'🗑️', title:'Delete this bill?',
+    icon:'trash', title:'Delete this bill?',
     msg:'This cannot be undone. The bill will be permanently removed.',
     confirmText:'Delete', danger:true,
     onConfirm: function(){
@@ -947,22 +956,22 @@ function renderBills(){
         '<div class="lcard-amt">'+fm(b.total, b.currency||'USD')+'</div>'+
       '</div>'+
       '<div class="lcard-meta">'+
-        '<span>🚗 '+esc(b.vehModel || '—')+'</span>'+
-        '<span>🔖 '+esc(b.vehPlate || '—')+'</span>'+
-        (when ? '<span>🕐 '+esc(when)+'</span>' : '')+
+        '<span>'+ic('car',15)+esc(b.vehModel || '—')+'</span>'+
+        (b.vehPlate ? '<span class="plate">'+esc(b.vehPlate)+'</span>' : '')+
+        (when ? '<span>'+ic('clock',15)+esc(when)+'</span>' : '')+
         (paid > 0.009 && due > 0.009
           ? '<span style="color:var(--amb);font-weight:800">'+fmtV(paid)+' paid · '+fmtV(due)+' due</span>'
           : '')+
       '</div>'+
       '<div class="lcard-acts">'+
         (st !== 'paid'
-          ? '<button class="btn btn-red btn-sm" type="button" data-act="pay-bill">💵 Take Payment</button>'
+          ? '<button class="btn btn-red btn-sm" type="button" data-act="pay-bill">'+ic('banknote',15)+'Take Payment</button>'
           : '')+
-        '<button class="btn btn-ghost btn-sm" type="button" data-act="edit-bill">✏️ Edit</button>'+
-        '<button class="btn btn-dark btn-sm" type="button" data-act="print-bill">🖨️ Print</button>'+
-        '<button class="btn btn-wa btn-sm" type="button" data-act="wa-bill">💬 Send</button>'+
-        '<button class="btn btn-ghost btn-sm btn-icon" type="button" data-act="dupe-bill" aria-label="Duplicate">⧉</button>'+
-        '<button class="btn btn-danger-ghost btn-sm btn-icon" type="button" data-act="del-bill" aria-label="Delete">✕</button>'+
+        '<button class="btn btn-ghost btn-sm" type="button" data-act="edit-bill">'+ic('pencil',15)+'Edit</button>'+
+        '<button class="btn btn-ghost btn-sm" type="button" data-act="print-bill">'+ic('printer',15)+'Print</button>'+
+        '<button class="btn btn-wa btn-sm" type="button" data-act="wa-bill">'+ic('whatsapp',15)+'Send</button>'+
+        '<button class="btn btn-ghost btn-sm btn-icon" type="button" data-act="dupe-bill" aria-label="Duplicate">'+ic('copy',15)+'</button>'+
+        '<button class="btn btn-danger-ghost btn-sm btn-icon" type="button" data-act="del-bill" aria-label="Delete">'+ic('trash',15)+'</button>'+
       '</div>'+
     '</div>';
   }).join('');
@@ -1016,7 +1025,7 @@ function handleImport(file){
       return;
     }
     confirmSheet({
-      icon:'⚠️', title:'Replace all bills?',
+      icon:'alert', title:'Replace all bills?',
       msg:'This backup holds ' + data.length + ' bill' + (data.length !== 1 ? 's' : '') +
           '. Restoring replaces the ' + gb().length + ' bill' + (gb().length !== 1 ? 's' : '') +
           ' currently on this phone.',
@@ -1064,7 +1073,7 @@ function saveExpense(){
 
 function delExpense(id){
   confirmSheet({
-    icon:'🗑️', title:'Delete this expense?', msg:'This cannot be undone.',
+    icon:'trash', title:'Delete this expense?', msg:'This cannot be undone.',
     confirmText:'Delete', danger:true,
     onConfirm: function(){
       se(ge().filter(function(e){ return String(e.id) !== String(id); }));
@@ -1124,12 +1133,12 @@ function renderExpenses(){
   }
 
   listEl.innerHTML = shown.map(function(e){
-    var icon  = EXP_ICONS[e.category]  || '📋';
-    var color = EXP_COLORS[e.category] || '#64748b';
-    return '<div class="lcard" data-id="'+esc(e.id)+'" style="padding-left:18px">'+
-      '<span style="position:absolute;left:0;top:0;bottom:0;width:5px;background:'+color+'"></span>'+
+    var icon  = CAT_ICON[e.category]   || 'list';
+    var color = EXP_COLORS[e.category] || '#5b636d';
+    return '<div class="lcard" data-id="'+esc(e.id)+'">'+
+      '<span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:'+color+'"></span>'+
       '<div class="lcard-flex">'+
-        '<div class="lcard-ico" style="background:'+color+'1a">'+icon+'</div>'+
+        '<div class="lcard-ico" style="color:'+color+'">'+ic(icon,18)+'</div>'+
         '<div>'+
           '<div class="lcard-head" style="margin-bottom:4px">'+
             '<div class="lcard-name">'+esc(e.category)+'</div>'+
@@ -1137,11 +1146,11 @@ function renderExpenses(){
           '</div>'+
           '<div class="lcard-meta" style="margin-bottom:10px">'+
             (e.desc   ? '<span>'+esc(e.desc)+'</span>' : '')+
-            (e.vendor ? '<span>🏪 '+esc(e.vendor)+'</span>' : '')+
-            (e.date   ? '<span>📅 '+fd(e.date)+'</span>' : '')+
+            (e.vendor ? '<span>'+ic('store',14)+esc(e.vendor)+'</span>' : '')+
+            (e.date   ? '<span>'+ic('calendar',14)+fd(e.date)+'</span>' : '')+
           '</div>'+
           '<div class="lcard-acts end">'+
-            '<button class="btn btn-danger-ghost btn-sm" type="button" data-act="del-exp">✕ Delete</button>'+
+            '<button class="btn btn-danger-ghost btn-sm" type="button" data-act="del-exp">'+ic('trash',15)+'Delete</button>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -1418,6 +1427,22 @@ function wireInstallPrompt(){
 
 /* ══════════════════════════ INIT ══════════════════════════ */
 
+/* Paint the icons that live in static markup rather than in a render call. */
+function paintStaticIcons(){
+  var slots = {
+    'day-prev':'chevL', 'day-next':'chevR', 'wa-sheet-ico':'smartphone'
+  };
+  Object.keys(slots).forEach(function(id){
+    var el = $(id);
+    if(el) el.innerHTML = ic(slots[id], id === 'wa-sheet-ico' ? 22 : 18);
+  });
+  $$('.search-clear').forEach(function(b){ b.innerHTML = ic('x', 16); });
+  $$('.sect-ico').forEach(function(el){
+    var name = el.getAttribute('data-ic');
+    if(name) el.innerHTML = ic(name, 17);
+  });
+}
+
 function init(){
   // Currency select must reflect storage before anything renders.
   var c = getCurr();
@@ -1432,6 +1457,7 @@ function init(){
 
   wireEvents();
   initKbdLabels();
+  paintStaticIcons();
 
   buildItems();
   setVal('inv-date', todayISO());
@@ -1487,7 +1513,7 @@ var _formCb = null;
 
 function formSheet(opts){
   var ov = $('form-sheet');
-  $('form-sheet-ico').textContent   = opts.icon || '✏️';
+  $('form-sheet-ico').innerHTML = ic(opts.icon || 'pencil', 22);
   $('form-sheet-title').textContent = opts.title || '';
   var sub = $('form-sheet-sub');
   sub.textContent = opts.sub || '';
@@ -1513,7 +1539,7 @@ var _infoClick = null;
 
 function infoSheet(opts){
   var ov = $('info-sheet');
-  $('info-sheet-ico').textContent   = opts.icon || 'ℹ️';
+  $('info-sheet-ico').innerHTML = ic(opts.icon || 'list', 22);
   $('info-sheet-title').textContent = opts.title || '';
   var sub = $('info-sheet-sub');
   sub.textContent = opts.sub || '';
