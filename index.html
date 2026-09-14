@@ -85,11 +85,11 @@
       </div>
       <span class="sect-title">Invoice Details</span>
     </div>
-    <div class="field">
-      <label for="inv-no">Invoice No.</label>
-      <input type="text" id="inv-no" placeholder="INV-001" autocomplete="off">
-    </div>
-    <div class="field-row">
+    <div class="fields">
+      <div class="field m-full">
+        <label for="inv-no">Invoice No.</label>
+        <input type="text" id="inv-no" placeholder="INV-001" autocomplete="off">
+      </div>
       <div class="field">
         <label for="inv-date">Date</label>
         <input type="date" id="inv-date">
@@ -108,17 +108,19 @@
       </div>
       <span class="sect-title">Customer</span>
     </div>
-    <div class="field">
-      <label for="cust-name">Customer Name</label>
-      <input type="text" id="cust-name" placeholder="Full name" autocomplete="name">
-    </div>
-    <div class="field">
-      <label for="cust-phone">Phone</label>
-      <input type="tel" id="cust-phone" placeholder="+961 ..." autocomplete="tel" inputmode="tel">
-    </div>
-    <div class="field">
-      <label for="cust-addr">Address / Notes</label>
-      <input type="text" id="cust-addr" placeholder="Address or extra info" autocomplete="off">
+    <div class="fields">
+      <div class="field m-full">
+        <label for="cust-name">Customer Name</label>
+        <input type="text" id="cust-name" placeholder="Full name" autocomplete="name">
+      </div>
+      <div class="field m-full">
+        <label for="cust-phone">Phone</label>
+        <input type="tel" id="cust-phone" placeholder="+961 ..." autocomplete="tel" inputmode="tel">
+      </div>
+      <div class="field m-full">
+        <label for="cust-addr">Address / Notes</label>
+        <input type="text" id="cust-addr" placeholder="Address or extra info" autocomplete="off">
+      </div>
     </div>
   </div>
 
@@ -129,11 +131,11 @@
       </div>
       <span class="sect-title">Vehicle</span>
     </div>
-    <div class="field">
-      <label for="veh-model">Make &amp; Model</label>
-      <input type="text" id="veh-model" placeholder="e.g. Toyota Corolla 2020" autocomplete="off">
-    </div>
-    <div class="field-row">
+    <div class="fields">
+      <div class="field m-full">
+        <label for="veh-model">Make &amp; Model</label>
+        <input type="text" id="veh-model" placeholder="e.g. Toyota Corolla 2020" autocomplete="off">
+      </div>
       <div class="field">
         <label for="veh-plate">Plate</label>
         <input type="text" id="veh-plate" placeholder="ABC 1234" autocomplete="off">
@@ -152,11 +154,26 @@
       </div>
       <span class="sect-title">Services &amp; Parts</span>
     </div>
+
+    <!-- Column headings for the table layout used on laptop screens.
+         Hidden on phones, where each line is a self-labelling card. -->
+    <div class="item-head" aria-hidden="true">
+      <span>#</span>
+      <span>Description</span>
+      <span>Type</span>
+      <span class="ta-c">Qty</span>
+      <span class="ta-c">Unit Price</span>
+      <span class="ta-r">Amount</span>
+      <span></span>
+    </div>
+
     <div id="items"></div>
+
     <button class="add-item" type="button" id="add-item-btn">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
       Add Item
     </button>
+    <p class="kbd-hint">Press <kbd>Enter</kbd> on a line to start the next one.</p>
   </div>
 
   <div class="card">
@@ -193,20 +210,22 @@
       </div>
       <span class="sect-title">Notes</span>
     </div>
-    <div class="field">
-      <textarea id="inv-notes" rows="2" placeholder="Any additional notes..."></textarea>
+    <div class="fields">
+      <div class="field m-full d-full">
+        <textarea id="inv-notes" rows="2" placeholder="Any additional notes..."></textarea>
+      </div>
     </div>
   </div>
 
-  <div class="btn-stack">
+  <div class="btn-stack" id="bill-actions">
     <button class="btn btn-red btn-block" type="button" id="save-bill-btn">
       <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-      Save Bill
+      Save Bill<kbd class="k-save"></kbd>
     </button>
     <div class="btn-pair">
       <button class="btn btn-dark" type="button" id="print-bill-btn">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        Print
+        Print<kbd class="k-print"></kbd>
       </button>
       <button class="btn btn-wa" type="button" id="wa-bill-btn">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.775.462 3.448 1.27 4.906L2 22l5.237-1.242A9.953 9.953 0 0012 22c5.522 0 10-4.477 10-10S17.521 2 11.999 2zm.001 18a7.96 7.96 0 01-4.073-1.118l-.292-.174-3.108.736.773-3.03-.19-.31A7.96 7.96 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>
@@ -237,25 +256,27 @@
     <div class="stat-box amber"><div class="n" id="b-unp">—</div><div class="l">Unpaid</div></div>
   </div>
 
-  <div class="search-wrap">
-    <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-    <input type="search" id="srch" placeholder="Customer, car, plate, invoice no." autocomplete="off">
-    <button class="search-clear" type="button" data-clears="srch" aria-label="Clear search">✕</button>
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="search" id="srch" placeholder="Customer, car, plate, invoice no." autocomplete="off">
+      <button class="search-clear" type="button" data-clears="srch" aria-label="Clear search">✕</button>
+    </div>
+    <div class="toolbar-acts">
+      <button class="btn btn-ghost btn-sm" type="button" id="export-bills-btn">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Backup
+      </button>
+      <button class="btn btn-ghost btn-sm" type="button" id="import-bills-btn">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Restore
+      </button>
+    </div>
   </div>
 
   <div id="srch-sum"></div>
   <div id="bills-list"></div>
 
-  <div class="btn-pair" style="margin-top:16px">
-    <button class="btn btn-ghost btn-sm" type="button" id="export-bills-btn">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Backup
-    </button>
-    <button class="btn btn-ghost btn-sm" type="button" id="import-bills-btn">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      Restore
-    </button>
-  </div>
   <input type="file" id="file-in" accept="application/json,.json" class="hidden">
 </section>
 
@@ -279,23 +300,23 @@
       </div>
       <span class="sect-title">Add Expense</span>
     </div>
-    <div class="field">
-      <label for="exp-cat">Category</label>
-      <select id="exp-cat">
-        <option value="">Select category...</option>
-        <option value="Rent">🏠 Rent</option>
-        <option value="Utilities">💡 Utilities</option>
-        <option value="Tools &amp; Equipment">🔧 Tools &amp; Equipment</option>
-        <option value="Parts Purchase">📦 Parts Purchase</option>
-        <option value="Salaries">👥 Salaries</option>
-        <option value="Fuel">⛽ Fuel</option>
-        <option value="Insurance">🛡️ Insurance</option>
-        <option value="Maintenance">🔩 Maintenance</option>
-        <option value="Advertising">📢 Advertising</option>
-        <option value="Other">📋 Other</option>
-      </select>
-    </div>
-    <div class="field-row">
+    <div class="fields">
+      <div class="field m-full">
+        <label for="exp-cat">Category</label>
+        <select id="exp-cat">
+          <option value="">Select category...</option>
+          <option value="Rent">🏠 Rent</option>
+          <option value="Utilities">💡 Utilities</option>
+          <option value="Tools &amp; Equipment">🔧 Tools &amp; Equipment</option>
+          <option value="Parts Purchase">📦 Parts Purchase</option>
+          <option value="Salaries">👥 Salaries</option>
+          <option value="Fuel">⛽ Fuel</option>
+          <option value="Insurance">🛡️ Insurance</option>
+          <option value="Maintenance">🔩 Maintenance</option>
+          <option value="Advertising">📢 Advertising</option>
+          <option value="Other">📋 Other</option>
+        </select>
+      </div>
       <div class="field">
         <label for="exp-amt">Amount</label>
         <input type="number" id="exp-amt" placeholder="0.00" min="0" step="0.01" inputmode="decimal">
@@ -304,26 +325,36 @@
         <label for="exp-date">Date</label>
         <input type="date" id="exp-date">
       </div>
+      <div class="field m-full d-wide">
+        <label for="exp-desc">Description</label>
+        <input type="text" id="exp-desc" placeholder="e.g. Monthly rent payment" autocomplete="off">
+      </div>
+      <div class="field m-full">
+        <label for="exp-vendor">Vendor / Supplier</label>
+        <input type="text" id="exp-vendor" placeholder="e.g. Auto parts store" autocomplete="off">
+      </div>
     </div>
-    <div class="field">
-      <label for="exp-desc">Description</label>
-      <input type="text" id="exp-desc" placeholder="e.g. Monthly rent payment" autocomplete="off">
+    <div class="form-actions">
+      <button class="btn btn-red btn-block" type="button" id="save-exp-btn">
+        <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        Add Expense
+      </button>
     </div>
-    <div class="field">
-      <label for="exp-vendor">Vendor / Supplier</label>
-      <input type="text" id="exp-vendor" placeholder="e.g. Auto parts store" autocomplete="off">
-    </div>
-    <button class="btn btn-red btn-block" type="button" id="save-exp-btn">
-      <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      Add Expense
-    </button>
   </div>
 
-  <div class="sect-head" style="margin-top:20px">
-    <div class="sect-ico">
-      <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+  <div class="toolbar">
+    <div class="sect-head" style="margin-bottom:0">
+      <div class="sect-ico">
+        <svg width="17" height="17" fill="none" stroke="#c1272d" stroke-width="2.2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+      </div>
+      <span class="sect-title">Expense History</span>
     </div>
-    <span class="sect-title">Expense History</span>
+    <div class="toolbar-acts">
+      <button class="btn btn-ghost btn-sm" type="button" id="export-exp-btn">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+      </button>
+    </div>
   </div>
 
   <div class="pill-row" id="exp-cat-pills">
@@ -342,26 +373,22 @@
 
   <div id="exp-sum"></div>
   <div id="exp-list"></div>
-
-  <button class="btn btn-ghost btn-block btn-sm" type="button" id="export-exp-btn" style="margin-top:16px">
-    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-    Export Expenses
-  </button>
 </section>
 
 <!-- ══════════════════ 4 · HISTORY ══════════════════ -->
 <section id="pane-history" class="pane">
   <h1 class="pane-title">History</h1>
 
-  <div class="segment" id="hist-segment">
-    <button type="button" class="on" data-view="customers">👤 Customers</button>
-    <button type="button" data-view="vehicles">🚗 Vehicles</button>
-  </div>
-
-  <div class="search-wrap">
-    <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-    <input type="search" id="hist-srch" placeholder="Search names, plates, models" autocomplete="off">
-    <button class="search-clear" type="button" data-clears="hist-srch" aria-label="Clear search">✕</button>
+  <div class="toolbar">
+    <div class="segment" id="hist-segment">
+      <button type="button" class="on" data-view="customers">👤 Customers</button>
+      <button type="button" data-view="vehicles">🚗 Vehicles</button>
+    </div>
+    <div class="search-wrap">
+      <svg class="search-ico" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="search" id="hist-srch" placeholder="Search names, plates, models" autocomplete="off">
+      <button class="search-clear" type="button" data-clears="hist-srch" aria-label="Clear search">✕</button>
+    </div>
   </div>
 
   <div id="hist-stats-bar"></div>
@@ -379,10 +406,16 @@
     <div class="stat-box blue"><div class="n" id="j-coll">0</div><div class="l">Collected</div></div>
   </div>
 
-  <button class="btn btn-red btn-block" type="button" id="add-job-btn" style="margin-bottom:14px">
-    <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-    Add New Job
-  </button>
+  <div class="toolbar">
+    <button class="btn btn-red" type="button" id="add-job-btn">
+      <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Add New Job
+    </button>
+    <label class="pill check-pill">
+      <input type="checkbox" id="show-collected">
+      Show collected
+    </label>
+  </div>
 
   <div class="collapse card" id="add-job-form">
     <div class="sect-head">
@@ -391,48 +424,64 @@
       </div>
       <span class="sect-title">New Job</span>
     </div>
-    <div class="field">
-      <label for="j-cust">Customer Name</label>
-      <input type="text" id="j-cust" placeholder="e.g. Georges Khoury" autocomplete="off">
+    <div class="fields cols-2">
+      <div class="field m-full">
+        <label for="j-cust">Customer Name</label>
+        <input type="text" id="j-cust" placeholder="e.g. Georges Khoury" autocomplete="off">
+      </div>
+      <div class="field m-full">
+        <label for="j-phone">Phone (optional)</label>
+        <input type="tel" id="j-phone" placeholder="+961 ..." inputmode="tel" autocomplete="off">
+      </div>
+      <div class="field m-full">
+        <label for="j-model">Car Model</label>
+        <input type="text" id="j-model" placeholder="e.g. Toyota Corolla 2020" autocomplete="off">
+      </div>
+      <div class="field m-full">
+        <label for="j-plate">Plate</label>
+        <input type="text" id="j-plate" placeholder="ABC 1234" autocomplete="off">
+      </div>
+      <div class="field m-full d-full">
+        <label for="j-job">Job Description</label>
+        <input type="text" id="j-job" placeholder="e.g. Full service + brake pads" autocomplete="off">
+      </div>
+      <div class="field m-full d-full">
+        <label for="j-notes">Notes (optional)</label>
+        <input type="text" id="j-notes" placeholder="Any extra info..." autocomplete="off">
+      </div>
     </div>
-    <div class="field">
-      <label for="j-phone">Phone (optional)</label>
-      <input type="tel" id="j-phone" placeholder="+961 ..." inputmode="tel" autocomplete="off">
-    </div>
-    <div class="field">
-      <label for="j-model">Car Model</label>
-      <input type="text" id="j-model" placeholder="e.g. Toyota Corolla 2020" autocomplete="off">
-    </div>
-    <div class="field">
-      <label for="j-plate">Plate</label>
-      <input type="text" id="j-plate" placeholder="ABC 1234" autocomplete="off">
-    </div>
-    <div class="field">
-      <label for="j-job">Job Description</label>
-      <input type="text" id="j-job" placeholder="e.g. Full service + brake pads" autocomplete="off">
-    </div>
-    <div class="field">
-      <label for="j-notes">Notes (optional)</label>
-      <input type="text" id="j-notes" placeholder="Any extra info..." autocomplete="off">
-    </div>
-    <div class="btn-stack">
+    <div class="form-actions">
       <button class="btn btn-red btn-block" type="button" id="save-job-btn">Add to Board</button>
       <button class="btn btn-ghost btn-block" type="button" id="cancel-job-btn">Cancel</button>
     </div>
   </div>
-
-  <label class="pill" style="display:inline-flex;align-items:center;gap:10px;margin-bottom:14px">
-    <input type="checkbox" id="show-collected" style="width:22px;height:22px;accent-color:#c1272d">
-    Show collected
-  </label>
 
   <div id="jobs-list"></div>
 </section>
 
 </main>
 
-<!-- ══ BOTTOM NAV ══ -->
+<!-- ══ NAV — bottom bar on phones, left sidebar on laptops ══ -->
 <nav class="bottom-nav" id="bottom-nav">
+  <div class="nav-brand" aria-hidden="true">
+    <div class="logo-badge">
+      <svg width="22" height="22" viewBox="0 0 130 95" fill="none">
+        <path d="M42 40Q44 20 56 18L74 18Q86 18 88 40Z" fill="white"/>
+        <rect x="10" y="40" width="110" height="23" rx="6" fill="white"/>
+        <rect x="6" y="44" width="9" height="12" rx="3" fill="white"/>
+        <rect x="115" y="44" width="9" height="12" rx="3" fill="white"/>
+        <circle cx="32" cy="63" r="16" fill="white"/><circle cx="32" cy="63" r="7" fill="#c1272d"/>
+        <circle cx="98" cy="63" r="16" fill="white"/><circle cx="98" cy="63" r="7" fill="#c1272d"/>
+        <rect x="56" y="77" width="18" height="13" fill="white"/>
+        <rect x="26" y="88" width="78" height="5" rx="2.5" fill="white"/>
+      </svg>
+    </div>
+    <div>
+      <div class="nav-brand-name">FIX AND DRIVE</div>
+      <div class="nav-brand-tag">Invoice Manager</div>
+    </div>
+  </div>
+
   <button class="nav-btn on" type="button" data-tab="new">
     <svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
     <span>New Bill</span>
@@ -454,6 +503,11 @@
     <span>Jobs</span>
     <span class="nav-dot" id="jobs-dot">0</span>
   </button>
+
+  <div class="nav-foot">
+    <div class="nav-shortcut"><kbd class="k-save"></kbd> save bill</div>
+    <div class="nav-shortcut"><kbd class="k-print"></kbd> print / PDF</div>
+  </div>
 </nav>
 
 <!-- ══ CONFIRM SHEET ══ -->
@@ -484,7 +538,8 @@
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Open Print Dialog
       </button>
-      <div class="wa-hint">Choose <strong>Save as PDF</strong> in the print screen, then Save. The file goes to your Downloads.</div>
+      <div class="wa-hint only-touch">Choose <strong>Save as PDF</strong> in the print screen, then Save. The file goes to your Downloads.</div>
+      <div class="wa-hint only-desk">Set the destination to <strong>Save as PDF</strong> and click Save. Remember which folder you put it in.</div>
     </div>
 
     <div class="wa-step">
@@ -493,7 +548,8 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.775.462 3.448 1.27 4.906L2 22l5.237-1.242A9.953 9.953 0 0012 22c5.522 0 10-4.477 10-10S17.521 2 11.999 2zm.001 18a7.96 7.96 0 01-4.073-1.118l-.292-.174-3.108.736.773-3.03-.19-.31A7.96 7.96 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>
         Open WhatsApp Chat →
       </a>
-      <div class="wa-hint">In the chat tap the <strong>📎 clip</strong>, pick <strong>Document</strong>, and choose the PDF you just saved.</div>
+      <div class="wa-hint only-touch">In the chat tap the <strong>📎 clip</strong>, pick <strong>Document</strong>, and choose the PDF you just saved.</div>
+      <div class="wa-hint only-desk">WhatsApp Web opens in a new tab. Click the <strong>📎 clip</strong>, choose <strong>Document</strong>, and pick the PDF — or just drag the file into the chat.</div>
     </div>
 
     <div class="sheet-acts" style="margin-top:6px">

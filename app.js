@@ -21,7 +21,8 @@ var EK = 'fixdrive_expenses';
 var JK = 'fixdrive_jobs';
 var CK = 'fixdrive_currency';
 
-var START_ITEMS = 4;      // rows the form opens with
+var START_ITEMS = 4;      // blank rows the form opens with on a phone
+var START_ITEMS_WIDE = 6; // ...and on a laptop, where they cost no scrolling
 var PRINT_ROWS  = 7;      // minimum rows drawn on the printed A4 sheet
 
 var EXP_ICONS = {
@@ -289,7 +290,6 @@ function itemMarkup(n){
     '<div class="item-top">'+
       '<div class="item-num">'+n+'</div>'+
       '<input type="text" class="i-d item-desc" placeholder="Service or part" autocomplete="off">'+
-      '<button class="item-del" type="button" data-act="del-item" aria-label="Remove item">✕</button>'+
     '</div>'+
     '<div class="item-grid">'+
       '<div class="item-cell">'+
@@ -311,7 +311,11 @@ function itemMarkup(n){
       '<span class="l">Amount</span>'+
       '<span class="v i-av">—</span>'+
       '<input type="hidden" class="i-a" value="">'+
-    '</div>';
+    '</div>'+
+    // Last in the DOM on purpose: Tab then runs description -> type -> qty ->
+    // price without stopping on a destructive button halfway through the row.
+    // CSS floats it back to the top-right corner on phones.
+    '<button class="item-del" type="button" data-act="del-item" aria-label="Remove item">✕</button>';
 }
 
 function addItem(){
@@ -323,10 +327,17 @@ function addItem(){
   return card;
 }
 
+/* On a laptop the lines render as a compact table, so a few blank rows are
+   handy and cost nothing. On a phone every blank row is a screenful. */
+function startItems(){
+  return window.matchMedia('(min-width:1024px)').matches ? START_ITEMS_WIDE : START_ITEMS;
+}
+
 function buildItems(n){
   var wrap = $('items');
   wrap.innerHTML = '';
-  for(var i = 0; i < (n || START_ITEMS); i++) addItem();
+  var count = n || startItems();
+  for(var i = 0; i < count; i++) addItem();
 }
 
 function renumberItems(){
@@ -496,7 +507,7 @@ function loadBill(id){
   setVal('tax-pct',    b.taxPct || 0);
 
   var items = b.items || [];
-  buildItems(Math.max(START_ITEMS, items.length));
+  buildItems(Math.max(startItems(), items.length));
   var cards = $$('#items .item-card');
   items.forEach(function(it,i){
     var c = cards[i];
@@ -1372,6 +1383,17 @@ function wireEvents(){
   $('items').addEventListener('input', function(e){
     if(e.target.matches('.i-q, .i-p')) recalc();
   });
+  // Enter jumps to the next line, creating one if this is the last. On a
+  // laptop that means a whole bill can be typed without touching the mouse.
+  $('items').addEventListener('keydown', function(e){
+    if(e.key !== 'Enter') return;
+    if(!e.target.matches('.i-d, .i-q, .i-p')) return;
+    e.preventDefault();
+    var cards = $$('#items .item-card');
+    var next  = cards[cards.indexOf(e.target.closest('.item-card')) + 1] || addItem();
+    next.querySelector('.i-d').focus();
+  });
+
   $('items').addEventListener('click', function(e){
     var btn = e.target.closest('[data-act]');
     if(!btn) return;
@@ -1511,6 +1533,15 @@ function wireEvents(){
   });
 }
 
+/* Fill the kbd chips with the right modifier for this machine. They are
+   hidden by CSS on touch screens, where they would only be noise. */
+function initKbdLabels(){
+  var mac = /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent || '');
+  var mod = mac ? '\u2318' : 'Ctrl+';
+  $$('.k-save').forEach(function(el){ el.textContent = mod + 'S'; });
+  $$('.k-print').forEach(function(el){ el.textContent = mod + 'P'; });
+}
+
 /* ══════════════════════════ PWA PLUMBING ══════════════════════════ */
 
 function registerSW(){
@@ -1582,6 +1613,7 @@ function init(){
   updateRateDisplay();
 
   wireEvents();
+  initKbdLabels();
 
   buildItems();
   setVal('inv-date', todayISO());

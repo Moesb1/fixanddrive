@@ -1,20 +1,40 @@
 # Fix &amp; Drive
 
-Offline-first PWA for the Fix and Drive auto garage: invoices, expenses, customer
-and vehicle history, and a live job board. Installs to an Android or iPhone home
-screen and runs with no network at all.
+Offline-first app for the Fix and Drive auto garage: invoices, expenses, customer
+and vehicle history, and a live job board. One codebase that lays itself out as a
+desktop tool on a laptop and as a touch app on a phone, and runs with no network
+either way.
 
 **Live:** https://moesb1.github.io/fixanddrive/
 
-## Installing it on the phone
+## On the laptop
 
-**Android (Chrome)** — open the link, then tap the "Install" bar at the top of the
-New Bill screen (or menu ⋮ → *Install app*).
+Just open the link. Chrome and Edge will also offer to install it (the ⊕ in the
+address bar, or menu → *Install*), which gives it its own window and a dock/taskbar
+icon with no browser chrome.
+
+The laptop layout kicks in at 1024px wide and is built around the keyboard:
+
+| Key | Does |
+| --- | --- |
+| `Tab` | Next field. Inside the items table: description → type → qty → price. |
+| `Enter` | Jump to the next line item, adding a new line if you are on the last one. |
+| `⌘S` / `Ctrl+S` | Save the bill. |
+| `⌘P` / `Ctrl+P` | Print / save as PDF. |
+| `Esc` | Close a dialog. |
+
+Line items are a proper table here, so a full bill can be typed without touching
+the trackpad: type the description, Tab to qty and price, Enter for the next line.
+
+## On the phone
+
+**Android (Chrome)** — open the link, tap the "Install" bar on the New Bill screen
+(or menu ⋮ → *Install app*).
 
 **iPhone (Safari)** — open the link, tap **Share**, then **Add to Home Screen**.
 
-Once installed it opens full screen, with no browser bars, and works with the phone
-in airplane mode.
+Below 1024px the same app becomes a touch layout: bottom tab bar, one column, big
+controls, and each line item becomes its own card instead of a table row.
 
 ## The five tabs
 
@@ -24,21 +44,23 @@ in airplane mode.
 | **Bills** | Every saved bill. Search, mark paid/unpaid, edit, duplicate, print, send, delete. Backup and restore as JSON. |
 | **Expenses** | Log shop costs by category. Shows total spent, this month, and net profit against invoice revenue. |
 | **History** | Customers and vehicles rolled up from saved bills: visit counts, totals, last service, unpaid counts. |
-| **Job Board** | Cars currently in the shop. Each job moves Waiting → In Progress → Done → Collected, and can be turned into a bill in one tap. |
+| **Job Board** | Cars currently in the shop. Each job moves Waiting → In Progress → Done → Collected, and can be turned into a bill in one click. |
 
 ## Printing and WhatsApp
 
-**Print** renders a full A4 invoice and opens the phone's print dialog. Choose
-*Save as PDF* to get a file, or send it straight to a printer.
+**Print** renders a full A4 invoice and opens the print dialog. Choose *Save as PDF*
+for a file, or send it to a printer. Bills longer than seven lines compress their
+row height so the invoice still fits on one page.
 
-**Send** is a two-step flow, because WhatsApp has no way to attach a file from a web
-page: print the invoice to PDF first, then open the customer's chat and attach it
-with the 📎 clip button. Lebanese numbers are normalised automatically, so `03 456 789`
+**Send** is a two-step flow, because WhatsApp gives web pages no way to attach a
+file: print the invoice to PDF first, then open the customer's chat and attach it.
+On a laptop that opens WhatsApp Web, where the PDF can also just be dragged into
+the conversation. Lebanese numbers are normalised automatically, so `03 456 789`
 opens the chat for `+961 3 456 789`.
 
 ## Where the data lives
 
-Everything is in the phone's `localStorage` — there is no server and no account.
+Everything is in `localStorage` on the device — no server, no account, no sync.
 
 | Key | Contents |
 | --- | --- |
@@ -47,12 +69,11 @@ Everything is in the phone's `localStorage` — there is no server and no accoun
 | `fixdrive_jobs` | job board |
 | `fixdrive_currency` | selected display currency |
 
-These are the same keys the previous single-file version used, so existing data on a
-phone carries over untouched.
-
-Because the data is on the device, **use Bills → Backup regularly**. Clearing the
-browser's site data, or deleting the app, deletes the bills with it. Restore reads
-the backup file back in.
+**The laptop and the phone are separate copies.** Because the data never leaves the
+device, a bill written on the phone does not appear on the laptop. To move
+everything across, use **Bills → Backup** on the old device and **Restore** on the
+new one. Same story for ordinary safekeeping: back up regularly, since clearing
+site data or deleting the app takes the bills with it.
 
 ## Currency
 
@@ -64,7 +85,8 @@ sourced June 2026 — edit them there when they drift.
 
 ```
 index.html   markup and the five tab panes
-style.css    all styling, including the printed A4 invoice sheet
+style.css    all styling: phone layout, the ≥1024px laptop layout, and the
+             printed A4 invoice sheet
 app.js       all behaviour, no dependencies, no build step
 sw.js        service worker: precaches the shell, serves cache-first
 manifest.json
@@ -73,12 +95,28 @@ icons/       app icons (192, 512, maskable, apple-touch)
 
 ## Editing it
 
-There is no build step — edit a file and reload.
+No build step — edit a file and reload.
 
-One thing to remember: `sw.js` serves everything **cache-first**, so a browser that
-has already loaded the app will keep showing the old files. After changing anything,
-bump `CACHE_VERSION` in `sw.js` (`fixdrive-v1` → `fixdrive-v2`, …). That is what
-tells installed phones to throw away the old cache and pull the new build.
+**After changing anything, bump `CACHE_VERSION` in `sw.js`** (`fixdrive-v2` →
+`fixdrive-v3`, …). The service worker serves cache-first, so without that bump an
+installed phone or laptop keeps running the old build forever. The same thing bites
+during local development: unregister the worker and clear caches between reloads, or
+you will be testing stale files.
+
+A few layout notes worth knowing before editing the CSS:
+
+- The laptop layout reuses the phone markup. `display:contents` dissolves the item
+  card's inner wrappers so each control becomes a direct grid cell, letting one
+  column template line the rows up with the header. There is no second markup path,
+  so changing a field means changing it once.
+- The delete button on a line item sits **last** in the DOM so Tab does not land on
+  a destructive control halfway through the row; CSS moves it back to the card's
+  top-right corner on phones.
+- `html`/`body` use `overflow-x:clip`, not `hidden`. `hidden` turns the root into a
+  scroll container and silently breaks `position:sticky` for the app bar and the
+  sidebar.
+- Everything responsive is scoped to `@media screen and …` so none of it reaches
+  the printed invoice.
 
 To test locally:
 

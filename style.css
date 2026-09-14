@@ -33,7 +33,10 @@
 
 html{
   -webkit-text-size-adjust:100%;
-  overflow-x:hidden;
+  /* `clip` rather than `hidden`: both stop sideways drift, but `hidden` turns
+     the root into a scroll container, which silently breaks position:sticky
+     for every descendant — the app bar and the sidebar both depend on it. */
+  overflow-x:clip;
 }
 
 body{
@@ -43,7 +46,7 @@ body{
   font-size:16px;
   line-height:1.45;
   -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
+  overflow-x:clip;
   /* Kill the grey flash on tap — we use explicit :active states instead. */
   -webkit-tap-highlight-color:transparent;
 }
@@ -254,6 +257,7 @@ input[type="date"]{
    ========================================================================== */
 
 .item-card{
+  position:relative;
   border:2px solid var(--brd);
   border-radius:var(--r12);
   padding:12px;
@@ -280,13 +284,17 @@ input[type="date"]{
 .item-desc:focus{border-color:var(--red); box-shadow:0 0 0 3px rgba(193,39,45,.1)}
 .item-desc::placeholder{color:#94a3b8; font-weight:400}
 
+/* Sits last in the DOM so it does not interrupt Tab order, and is pulled
+   back to the top-right corner here. */
 .item-del{
+  position:absolute; top:10px; right:8px;
   width:44px; height:44px; flex-shrink:0;
   border:none; background:transparent;
   color:var(--mute); font-size:20px;
   border-radius:10px; cursor:pointer;
   display:flex; align-items:center; justify-content:center;
 }
+.item-top{padding-right:44px}
 .item-del:active{background:var(--red-s); color:var(--red)}
 
 .item-grid{
@@ -382,10 +390,10 @@ input[type="date"]{
 
 /* Running total pinned above the nav, so the number and Save are always
    reachable no matter how far down the form the mechanic has scrolled.
-   It is fixed rather than sticky because `overflow-x:hidden` on <html>
-   (needed to stop sideways drift) turns the root into a scroll container
-   and stops position:sticky resolving against the viewport.
-   It hides automatically on the other tabs: its pane is display:none. */
+   Deliberately fixed, not sticky: it must sit against the nav at all times,
+   not only once its place in the flow scrolls past. It hides itself on the
+   other tabs because its pane is display:none, and on laptops where the
+   totals card is already on screen. */
 .sticky-total{
   position:fixed;
   left:0; right:0;
@@ -734,7 +742,7 @@ input[type="date"]{
    LARGER PHONES / TABLETS — widen but never lose the touch sizing
    ========================================================================== */
 
-@media (min-width:600px){
+@media screen and (min-width:600px){
   .pane{max-width:720px; margin:0 auto; padding-left:20px; padding-right:20px}
   .stat-grid,.stat-grid.four{grid-template-columns:repeat(4,1fr)}
   .field-row{gap:14px}
@@ -896,4 +904,322 @@ input[type="date"]{
 .p-cor{
   position:absolute; bottom:0; right:0; width:26mm; height:13mm;
   background:#c1272d; clip-path:polygon(100% 0,100% 100%,0 100%);
+}
+
+/* ==========================================================================
+   SHARED PIECES INTRODUCED FOR THE LAPTOP LAYOUT
+   Base (phone) values first; the desktop block below rearranges them.
+   ========================================================================== */
+
+/* Field container. One column of full-width fields on a phone, multiple
+   columns on a laptop — the markup is identical, only the track count moves. */
+.fields{display:grid; grid-template-columns:repeat(2,1fr); gap:12px}
+.fields > .field{margin-bottom:0; min-width:0}
+.field.m-full{grid-column:1 / -1}
+
+/* Form buttons: stacked and full width on a phone. */
+.form-actions{display:flex; flex-direction:column; gap:10px; margin-top:16px}
+
+/* Header strip above a list: search, filters, secondary actions. */
+.toolbar{display:flex; flex-direction:column; gap:10px; margin-bottom:12px}
+.toolbar .search-wrap,
+.toolbar .segment{margin-bottom:0}
+.toolbar-acts{display:flex; gap:8px}
+.toolbar-acts .btn{flex:1}
+
+.check-pill{
+  display:inline-flex; align-items:center; gap:10px;
+  align-self:flex-start;
+}
+.check-pill input{width:22px; height:22px; accent-color:var(--red); flex-shrink:0}
+
+.ta-c{text-align:center}
+.ta-r{text-align:right}
+
+/* Keyboard affordances are meaningless on a touch screen, so they start
+   hidden and are switched on at the laptop breakpoint. */
+kbd{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:2px 7px; margin-left:2px;
+  border-radius:5px;
+  background:rgba(255,255,255,.18);
+  font-family:var(--font); font-size:12px; font-weight:700;
+  letter-spacing:.5px; line-height:1.6;
+  color:rgba(255,255,255,.88);
+}
+.btn-ghost kbd{background:var(--bg); color:var(--mute)}
+.btn kbd{display:none}
+.kbd-hint{display:none}
+.item-head{display:none}
+.nav-brand,.nav-foot{display:none}
+.only-desk{display:none}
+
+/* ==========================================================================
+   LAPTOP  ≥1024px
+   The phone layout is a single scrolling column with a bottom bar. On a
+   laptop that wastes most of the screen and ignores the keyboard, so at this
+   width the app becomes a standard two-pane desktop tool:
+
+     · the bottom nav rotates into a fixed left sidebar
+     · form fields flow into three columns instead of stacking
+     · line items collapse from cards back into a real table, which is far
+       quicker to fill in with Tab and a number pad
+     · list rows go horizontal, with actions on the right
+     · controls tighten from 56px to 46px, the right size for a mouse
+     · keyboard shortcuts become visible
+
+   Scoped to `screen` so none of it leaks into the printed invoice.
+   ========================================================================== */
+
+@media screen and (min-width:1024px){
+
+  /* Mouse-sized rather than thumb-sized. Still generous: 46px is well above
+     the 24px minimum, which matters for the person actually using this. */
+  :root{
+    --tap:46px;
+    --item-cols:34px minmax(180px,1fr) 112px 78px 116px 116px 40px;
+  }
+
+  body{
+    display:grid;
+    grid-template-columns:236px minmax(0,1fr);
+    grid-template-areas:
+      "nav bar"
+      "nav main";
+  }
+
+  /* ── SIDEBAR (the bottom nav, rotated) ── */
+  .bottom-nav{
+    grid-area:nav;
+    position:sticky; top:0;
+    height:100vh; overflow-y:auto;
+    flex-direction:column; justify-content:flex-start;
+    gap:3px; padding:16px 12px;
+    border-top:none;
+    border-right:1px solid var(--brd);
+    box-shadow:none;
+    padding-bottom:16px;
+  }
+  .nav-brand{
+    display:flex; align-items:center; gap:11px;
+    padding:6px 8px 18px;
+    margin-bottom:6px;
+    border-bottom:1px solid var(--brd);
+  }
+  .nav-brand .logo-badge{width:36px; height:36px; border-radius:10px}
+  .nav-brand-name{font-size:13px; font-weight:800; color:var(--ink); letter-spacing:.6px; line-height:1.1}
+  .nav-brand-tag{
+    font-size:8.5px; font-weight:700; letter-spacing:2.2px;
+    color:var(--mute); text-transform:uppercase; margin-top:3px;
+  }
+
+  .nav-btn{
+    flex:0 0 auto;
+    height:auto; min-height:48px;
+    flex-direction:row; justify-content:flex-start;
+    gap:13px; padding:12px 14px;
+    border-radius:11px;
+  }
+  .nav-btn span{font-size:15px; font-weight:700}
+  .nav-btn.on{background:var(--red-s)}
+  .nav-btn.on::before{
+    top:10px; bottom:10px; left:0; right:auto;
+    width:3.5px; height:auto;
+    border-radius:0 4px 4px 0;
+  }
+  .nav-dot{
+    position:static; margin-left:auto;
+    border:none; top:auto; left:auto;
+  }
+
+  .nav-foot{
+    display:block; margin-top:auto;
+    padding:14px 10px 4px;
+    border-top:1px solid var(--brd);
+  }
+  .nav-shortcut{
+    display:flex; align-items:center; gap:8px;
+    font-size:11.5px; font-weight:600; color:var(--mute);
+    margin-bottom:7px;
+  }
+  .nav-shortcut kbd{
+    background:var(--bg); color:var(--sub);
+    border:1px solid var(--brd);
+    min-width:34px;
+  }
+
+  /* ── TOP BAR ── */
+  .appbar{
+    grid-area:bar;
+    display:flex; align-items:center; gap:24px;
+    padding:12px 28px;
+  }
+  /* Flatten the wrapper so the logo, stats and currency all become items of
+     the bar itself and can be ordered independently. */
+  .appbar-top{display:contents}
+  /* Scoped to the bar: .logo-badge also appears in the sidebar brand, which
+     must keep its own natural order. */
+  .appbar .logo-badge{order:1}
+  .appbar .logo-text{order:2; flex:0 0 auto}
+  .appbar .stat-strip{
+    order:3; margin-left:auto;
+    flex:0 0 auto; padding:0; overflow:visible; max-width:none;
+  }
+  .appbar .curr-box{order:4}
+  .appbar .logo-name{font-size:17px}
+
+  /* ── CONTENT ── */
+  main{grid-area:main; min-width:0}
+  .pane,#pane-new{
+    max-width:1180px; margin:0 auto;
+    padding:26px 30px 60px;
+  }
+  .pane-title{font-size:28px; margin-bottom:20px}
+  .card{padding:22px 24px; margin-bottom:16px}
+  .sticky-total{display:none}
+
+  /* ── FORMS ── */
+  .fields{grid-template-columns:repeat(3,1fr); gap:18px}
+  .field.m-full{grid-column:auto}
+  .field.d-wide{grid-column:span 2}
+  .field.d-full{grid-column:1 / -1}
+  .field input,.field select,.field textarea{
+    padding:11px 14px; font-size:16px;
+  }
+  .field textarea{min-height:76px}
+  input[type="date"]{font-size:16px; padding-left:14px}
+
+  .form-actions{flex-direction:row; justify-content:flex-end}
+  .form-actions .btn,
+  .form-actions .btn-block{width:auto; min-width:150px}
+
+  /* ── TOOLBAR ── */
+  .toolbar{flex-direction:row; align-items:center; gap:14px; margin-bottom:16px}
+  .toolbar .search-wrap{flex:1; max-width:460px}
+  .toolbar .segment{flex:0 0 auto; width:300px}
+  .toolbar-acts{margin-left:auto; flex:0 0 auto}
+  .toolbar-acts .btn{flex:0 0 auto}
+  .pill-row{flex-wrap:wrap; overflow:visible; padding-bottom:0; margin-bottom:14px}
+
+  /* ── LINE ITEMS AS A TABLE ──
+     `display:contents` dissolves the card's inner wrappers so every control
+     becomes a direct grid item of the row, letting one shared column
+     template line the rows up with the header. No second markup path. */
+  .item-head{
+    display:grid;
+    grid-template-columns:var(--item-cols);
+    gap:10px; align-items:end;
+    /* 13.5px = the row's 12px padding + its 1.5px border, so the headings sit
+       exactly over the controls beneath them. */
+    padding:0 13.5px 9px;
+    font-size:10.5px; font-weight:800;
+    color:var(--mute); text-transform:uppercase; letter-spacing:1.1px;
+    border-bottom:2px solid var(--brd);
+    margin-bottom:9px;
+  }
+
+  .item-card{
+    display:grid;
+    grid-template-columns:var(--item-cols);
+    gap:10px; align-items:center;
+    padding:7px 12px; margin-bottom:6px;
+    border-width:1.5px; border-radius:10px;
+    background:#fff;
+  }
+  .item-card:focus-within{border-color:var(--brd2); background:#fafbfc}
+
+  .item-card > .item-top,
+  .item-card > .item-grid,
+  .item-card > .item-amount{display:contents}
+  .item-grid > .item-cell{display:contents}
+  .item-cell label,
+  .item-amount .l{display:none}
+
+  .item-num{order:1; width:28px; height:28px; font-size:13px}
+  .item-desc{order:2; min-height:42px; padding:10px 12px; font-size:15.5px}
+  .type-toggle{order:3; min-height:42px; font-size:12.5px}
+  .item-cell .i-q{order:4}
+  .item-cell .i-p{order:5; text-align:right; padding-right:12px}
+  .item-cell input{min-height:42px; padding:10px; font-size:15.5px}
+  .item-amount .v{
+    order:6; text-align:right;
+    font-size:16px; padding-right:4px;
+  }
+  .item-del{order:7; position:static; width:38px; height:38px; font-size:17px}
+  .item-top{padding-right:0}
+
+  .add-item{min-height:46px; font-size:15px; margin-top:4px}
+  .kbd-hint{
+    display:block; margin-top:10px;
+    font-size:13px; color:var(--mute);
+  }
+  .kbd-hint kbd{
+    background:var(--bg); color:var(--sub);
+    border:1px solid var(--brd);
+  }
+
+  /* ── TOTALS ── */
+  .totals{max-width:420px; margin-left:auto}
+  .grand-v{font-size:24px}
+
+  /* ── BILL ACTION ROW ──
+     Clear sits far left, the primary action far right, the way a desktop
+     form footer normally reads. */
+  #bill-actions{flex-direction:row; align-items:center; gap:12px}
+  #bill-actions .btn-pair{display:contents}
+  #bill-actions .btn{width:auto; flex:0 0 auto; min-width:140px}
+  #clear-form-btn{order:1; margin-right:auto; min-width:0}
+  #print-bill-btn{order:2}
+  #wa-bill-btn{order:3}
+  #save-bill-btn{order:4; min-width:180px}
+  .btn kbd{display:inline-flex}
+
+  /* ── LIST ROWS GO HORIZONTAL ──
+     Name and details on the left, actions pinned right, one row per record
+     instead of the stacked phone card. */
+  .lcard:not(:has(.lcard-flex)),
+  .lcard-flex > div:nth-child(2){
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:
+      "head acts"
+      "meta acts";
+    align-items:center;
+    column-gap:24px; row-gap:5px;
+  }
+  .lcard-head{grid-area:head; margin-bottom:0}
+  .lcard-desc{grid-area:head; align-self:end}
+  .lcard-meta{grid-area:meta; margin-bottom:0}
+  .lcard-acts{grid-area:acts; flex-wrap:nowrap}
+  .lcard-acts .btn{flex:0 0 auto}
+  .lcard{padding:14px 18px 14px 22px}
+  .lcard-name{font-size:16px}
+  .lcard-amt{font-size:18px}
+  .badge{margin-top:0; margin-left:10px}
+
+  /* Job rows keep the description on its own line, so give them a third row
+     rather than stacking it on top of the name. */
+  #jobs-list .lcard{
+    grid-template-areas:
+      "head acts"
+      "desc acts"
+      "meta acts";
+  }
+  #jobs-list .lcard-desc{grid-area:desc; align-self:center; margin-top:0}
+
+  .stat-box .n{font-size:28px}
+  .summary-bar{font-size:14.5px}
+
+  /* ── WHATSAPP SHEET COPY ── */
+  .only-desk{display:block}
+  .only-touch{display:none}
+  .sheet-grip{display:none}
+  .sheet{max-width:560px; border-radius:var(--r20); padding:24px 26px 26px}
+
+  .install-bar{max-width:none}
+}
+
+/* Very wide screens: stop the content sprawling, keep line length sane. */
+@media screen and (min-width:1600px){
+  .pane,#pane-new{max-width:1320px}
 }

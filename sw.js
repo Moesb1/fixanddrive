@@ -10,7 +10,7 @@
    old cache to be thrown away and the new files to be pulled in.
    ========================================================================== */
 
-var CACHE_VERSION = 'fixdrive-v1';
+var CACHE_VERSION = 'fixdrive-v2';
 
 var PRECACHE = [
   './',
